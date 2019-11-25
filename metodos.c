@@ -31,7 +31,7 @@ void imprimirClientes(CLIENTES);
 void imprimirLibros(LIBROS);
 
 
-int agregarCliente(CLIENTES* lista_c, int ID){
+int agregarClientes(CLIENTES* lista_c, int ID){
 	CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
 	nodo_n->ID = ++ID; 
 	nodo_n->estado = 1;
@@ -58,14 +58,18 @@ int agregarCliente(CLIENTES* lista_c, int ID){
 	return ID;
 }
 
-int agregarLibro(LIBROS* lista_l, int ID){
+int agregarLibros(LIBROS* lista_l, int ID){
 	LIBRO_N* nodo_l = (LIBRO_N*) malloc(sizeof(LIBRO_N));
 	nodo_l->ID = ++ID;
 	nodo_l->next = NULL; fflush(stdin);
 	do{
-		printf("Tipo de libro:\n1 - Renta\n2 - Venta\n3 - Solo lectura\nOPCION: ");fflush(stdin);
-		scanf("%d", &(nodo_l->tipo));
-	}while(nodo_l->tipo >0 && nodo_l->tipo <4);
+		printf("Tipo de libro:\n1 - Renta\n2 - Venta\n3 - Solo lectura\nOPCION: ");
+		fflush(stdin);
+		scanf("%d", &nodo_l->tipo);
+	}while(nodo_l->tipo <0 && nodo_l->tipo >4);
+	
+	fflush(stdin);
+	
 	printf("Ingresa el titulo del libro: ");
 	nodo_l->titulo = stringProcess();
 	printf("Ingresa el autor: ");
@@ -90,9 +94,11 @@ int agregarLibro(LIBROS* lista_l, int ID){
 
 void imprimirLibro(LIBROS lista_l){
 	while(lista_l != NULL){
-		printf("ID: %d\nTipo: ", lista_l->ID);
+		printf("ID: %d\nTipo: %d", lista_l->ID,lista_l->tipo);
 		printf("\nTitulo: %s\nAutor: %s\nEditorial: %s\n", lista_l->titulo, lista_l->autor, lista_l->editorial);
-		printf("A%co de publicacion: %d\nISBN: %d\nPPrecio: ", 164, lista_l->anio_p, lista_l->ISBN, lista_l->precio);
+		printf("A%co de publicacion: %d\nISBN: %d\nPrecio: %d", 164, lista_l->anio_p, lista_l->ISBN, lista_l->precio);
+		printf("\n");		
+		lista_l = lista_l->next;	
 	}
 }
 
@@ -169,6 +175,7 @@ void imprimirClientes(CLIENTES lista_c){
 	while(lista_c != NULL){
 		printf("ID: %d\nNombre: %s\nCorreo: %s\nTelefono: %d\n", lista_c->ID, lista_c->nombre, lista_c->correo, lista_c->telefono);
 		printf("--- DIRECCION ---\nCalle: %s\nMunicipio: %s\n Numero de casa: %d", lista_c->calle, lista_c->municipio, lista_c->numero);
+		printf("\n");
 		lista_c = lista_c->next;
 	}
 }
