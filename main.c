@@ -4,9 +4,195 @@
 #include"./metodos.c"
 
 int main(){
-	CLIENTES lista_c = NULL;
-	int ID_c = 0;
-	ID_c = agregarCliente(&lista_c, ID_c);
 	
-	//imprimirClientes(lista_c);
+	CLIENTES lista_c = NULL;
+	LIBROS lista_l = NULL;
+	
+	int ID_c = 0;	
+	int ID_l = 0;	
+		
+	int op1,op2,op3;
+	
+	do
+	{
+		system("cls");
+
+// COMPROVACION DE MOVIMIENTOS //
+		
+	imprimirClientes(lista_c);
+	imprimirLibro(lista_l);
+		
+///////
+
+		printf("\n\t\tMENU PRINCIPAL\n");
+		printf("\n[1] CLIENTES");
+		printf("\n[2] LIBROS");
+		printf("\n[3] BIBLIOTECA");
+		printf("\n[4] INVENTARIO");
+		printf("\n[5] SALIR");
+		printf("\n\n\t\t\t\tSELECCIONE OPCION: ");
+		scanf("%d",&op1);
+		system("cls");
+		switch(op1)
+		{
+			case 1: 
+				printf("\t\tCLIENTES\n");
+				printf("\n[1] NUEVO CLIENTE");
+				printf("\n[2] EDITAR CLIENTE");	
+				printf("\n[3] ELIMINAR CLIENTE");					
+				printf("\n\n\t\t\t\tSELECCIONE OPCION: ");	
+				scanf("%d",&op2);
+				
+				switch(op2)
+				{
+					case 1:
+						ID_c = agregarClientes(&lista_c, ID_c);							
+					break;
+		
+					case 2:
+		
+					break;
+
+					case 3:
+		
+					break;
+
+					default:
+						printf("\nOPCION NO VALIDA, PRECIONE CUALQUIER TECLA PARA CONTINUAR");
+						getch();
+					break;
+				}
+				
+			break;
+	
+			case 2: 
+				printf("\t\tLIBROS\n");
+				printf("\n[1] NUEVO LIBRO");
+				printf("\n[2] EDITAR LIBRO");	
+				printf("\n[3] ELIMINAR LIBRO");					
+				printf("\n\n\t\t\t\tSELECCIONE OPCION: ");	
+				scanf("%d",&op2);
+				
+				switch(op2)
+				{
+					case 1:
+						ID_l = agregarLibros(&lista_l, ID_l);							
+					break;
+		
+					case 2:
+		
+					break;
+
+					case 3:
+		
+					break;
+
+					default:
+						printf("\nOPCION NO VALIDA,PRECIONE CUALQUIER TECLA PARA CONTINUAR");
+						getch();
+					break;
+				}
+					
+			break;
+	
+			case 3: 
+				printf("\t\tBIBLIOTECA\n");
+				printf("\n[1] COMPRAR LIBRO");
+				printf("\n[2] RENTAR LIBRO");	
+				printf("\n[3] LEER EN SALA");
+				printf("\n[4] REGRESAR LIRBO");						
+				printf("\n\n\t\t\t\tSELECCIONE OPCION: ");	
+				scanf("%d",&op2);
+				
+				switch(op2)
+				{
+					case 1:
+							
+					break;
+		
+					case 2:
+		
+					break;
+
+					case 3:
+		
+					break;
+
+					case 4:
+		
+					break;
+
+					default:
+						printf("\nOPCION NO VALIDA, PRECIONE CUALQUIER TECLA PARA CONTINUAR");
+						getch();
+					break;
+				}
+				
+						
+			break;		
+			
+			case 4:
+				printf("\t\tINVENTARIO\n");
+				printf("\n[1] BUSCAR POR CLIENTE");
+				printf("\n[2] BUSCAR POR LIBRO");				
+				printf("\n\n\t\t\t\tSELECCIONE OPCION: ");	
+				scanf("%d",&op2);
+				
+				switch(op2)
+				{
+					case 1:
+							
+					break;
+		
+					case 2:
+						system("cls");		
+						printf("\t\tBUSCAR POR LIBRO\n");
+						printf("\n[1] BUSQUEDA POR TITULO");
+						printf("\n[2] BUSQUEDA POR AUTOR");	
+						printf("\n[3] BUSQUEDA POR ISBN");					
+						printf("\n\n\t\t\t\tSELECCIONE OPCION: ");	
+						scanf("%d",&op3);
+						
+						switch(op3)
+						{
+							case 1:
+									
+							break;
+				
+							case 2:
+				
+							break;
+		
+							case 3:
+				
+							break;
+		
+							default:
+								printf("\nOPCION NO VALIDA, PRECIONE CUALQUIER TECLA PARA CONTINUAR");
+								getch();
+							break;
+						}		
+		
+					break;
+
+					default:
+						printf("\nOPCION NO VALIDA");
+					break;
+				}				
+				
+			break;
+
+			case 5:
+				printf("\nPROGRAMA TERMINADO, PRECIONE CUALQUIER TECLA PARA CERRAR");
+				getch();
+			break;
+						
+			default:
+				printf("\nOPCION NO VALIDA, PRECIONE CUALQUIER TECLA PARA CONTINUAR");
+				getch();
+			break;		
+		}
+	
+	}while(op1!=5);
+	
 }
