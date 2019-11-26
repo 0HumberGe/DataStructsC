@@ -34,6 +34,8 @@ int agregarLibros(LIBROS*, int);
 void imprimirClientes(CLIENTES);
 void imprimirLibros(LIBROS);
 void actualizarClientes(CLIENTES);
+void bajaCliente(CLIENTES*, int);
+void bajaLibro(LIBROS*, int);
 
 FILE*archivo_viejo;
 FILE*archivo_nuevo;
@@ -43,7 +45,7 @@ int cargarClientes(CLIENTES* lista_c, int ID)
 {
 	int IDD;
 	
-	archivo = fopen("CLIENTES.txt","r");
+	archivo = fopen("./FILES/CLIENTES.txt","r");
 
 	if (archivo==NULL) 
     { 
@@ -144,7 +146,7 @@ void actualizarClientes(CLIENTES lista_c)
 {
 	FILE*archivo_nuevo;
 	
-	archivo_nuevo= fopen("CLIENTES_TEMP.txt","w");
+	archivo_nuevo= fopen("./FILES/CLIENTES_TEMP.txt","w");
 	
 	if(archivo_nuevo==NULL)
 	{
@@ -166,8 +168,8 @@ void actualizarClientes(CLIENTES lista_c)
 		}
 	
 	fclose(archivo_nuevo);
-	remove("CLIENTES.txt");
-	rename("CLIENTES_TEMP.txt","CLIENTES.txt");
+	remove("./FILES/CLIENTES.txt");
+	rename("./FILES/CLIENTES_TEMP.txt","./FILES/CLIENTES.txt");
 	}
 }
 
@@ -291,6 +293,110 @@ void imprimirClientes(CLIENTES lista_c){
 		printf("\n\n");
 		lista_c = lista_c->next;
 	}
+}
+
+void bajaCliente(CLIENTES* lista_c, int ID){
+	CLIENTES aux_c = NULL;
+	if((*lista_c)->ID == ID)
+	{
+		if((*lista_c)->next == NULL)
+		{
+			aux_c = *lista_c;
+			*lista_c = NULL;
+			free(aux_c);
+		}else
+		{
+			aux_c = *lista_c;
+			*lista_c = aux_c->next;	
+			free(aux_c);
+		}	
+	}else
+	{
+		aux_c = *lista_c;
+		while(aux_c->next != NULL)
+		{
+			aux_c = aux_c->next;	
+		}
+		if(aux_c->ID == ID)
+		{
+			CLIENTES previo_c = NULL;
+			aux_c = *lista_c;
+			while(aux_c->next != NULL)
+			{
+				previo_c = aux_c;
+				aux_c = aux_c->next;	
+			}
+			free(aux_c);
+			previo_c->next = NULL;	
+		}else
+		{
+			aux_c = *lista_c;
+			CLIENTES previo_c = NULL;
+			while(aux_c->ID != ID && aux_c->next != NULL)
+			{
+				previo_c = aux_c;
+				aux_c = aux_c->next;
+			}
+			if(aux_c->ID == ID)
+			{
+				previo_c->next = aux_c->next;
+				free(aux_c);
+			}else
+				printf("El cliente con ID : %d no esta dado de alta", ID);
+		}		
+	}
+}
+
+void bajaLibro(LIBROS* lista_l, int ID){
+	LIBROS aux_l = NULL;
+	if((*lista_l)->ID == ID)
+	{
+		if((*lista_l)->next == NULL)
+		{
+			aux_l = *lista_l;
+			*lista_l = NULL;
+			free(aux_l);
+		}else
+		{
+			aux_l = *lista_l;
+			*lista_l = aux_l->next;
+			free(aux_l);
+		}
+	}else
+	{
+		aux_l = *lista_l;
+		while(aux_l->next != NULL)
+		{
+			aux_l = aux_l->next;
+		}
+		if(aux_l->ID == ID)
+		{
+			LIBROS previo_l = NULL;
+			aux_l = *lista_l;
+			while(aux_l->next != NULL)
+			{
+				previo_l = aux_l;
+				aux_l = aux_l->next;
+			}
+			free(aux_l);
+			previo_l->next = NULL;
+		}else
+		{
+			aux_l = *lista_l;
+			LIBROS previo_l = NULL;
+			while(aux_l->ID && aux_l->next != NULL)
+			{
+				previo_l = aux_l;
+				aux_l = aux_l->next;
+			}
+			if(aux_l->ID == ID)
+			{
+				previo_l->next = aux_l->next;
+				free(aux_l);
+			}else
+				printf("El libro con ID: %d, no esta dado de alta", ID);
+		}
+	}	
 }
 
 char* stringProcess(){

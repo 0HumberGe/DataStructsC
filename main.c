@@ -19,7 +19,7 @@ int main(){
 	{
 		system("cls");
 
-// COMPROVACION DE MOVIMIENTOS //
+// COMPROBACION DE MOVIMIENTOS //
 		
 	imprimirClientes(lista_c);
 	imprimirLibro(lista_l);
