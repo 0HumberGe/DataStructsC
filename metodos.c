@@ -5,14 +5,14 @@
 char BUFFER[MAX]={'\0'};
 
 struct cliente{
-		int numero;
-		char *calle, *municipio;
-	
-	int ID, telefono, estado/*1 alta 0, baja*/;
+	int numero;
+	char *telefono, *calle, *municipio;
+	int ID, estado/*1 alta 0, baja*/;
 	char *nombre, *correo;
-	char* notas;
+	char *notas;
 	struct cliente* next;
 };
+
 typedef struct cliente CLIENTE_N;
 typedef CLIENTE_N* CLIENTES;
 
@@ -21,17 +21,102 @@ struct libro{
 	char *titulo, *autor, *editorial, *notas;
 	struct libro* next;
 };
+
 typedef struct libro LIBRO_N;
 typedef LIBRO_N* LIBROS;
 
+
+int cargarClientes(CLIENTES*,int);
 char* stringProcess();
 int agregarClientes(CLIENTES*, int);
 int agregarLibros(LIBROS*, int);
 void imprimirClientes(CLIENTES);
 void imprimirLibros(LIBROS);
+void actualizarClientes(CLIENTES);
+
+FILE*archivo_viejo;
+FILE*archivo_nuevo;
+FILE*archivo;
+
+int cargarClientes(CLIENTES* lista_c, int ID)
+{
+	int IDD;
+	
+	archivo = fopen("CLIENTES.txt","r");
+
+	if (archivo==NULL) 
+    { 
+        printf("COMPRUEBE QUE EL ARCHIVO CLIENTES.txt ESTA CERRADO"); 
+    }	
+    else
+    {
+		while(!feof(archivo))
+		{
+					
+			int tam_tel, tam_nombre,tam_correo,tam_municipio,tam_calle;
+			int numero;
+			
+			CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
+
+			fscanf(archivo,"%d",&tam_nombre);
+			fscanf(archivo,"%d",&tam_correo);
+			fscanf(archivo,"%d",&tam_tel);
+			fscanf(archivo,"%d",&tam_municipio);
+			fscanf(archivo,"%d",&tam_calle);
+			
+			char *nombre = malloc(sizeof(char) * (tam_nombre + 1));	
+			nombre[tam_nombre] = '\0';
+	
+			char *correo = malloc(sizeof(char) * (tam_correo + 1));	
+			correo[tam_correo] = '\0';
+	
+			char *telefono = malloc(sizeof(char) * (tam_tel + 1));	
+			telefono[tam_tel] = '\0';
+							
+			char *municipio = malloc(sizeof(char) * (tam_municipio + 1));	
+			municipio[tam_municipio] = '\0';
+	
+			char *calle = malloc(sizeof(char) * (tam_calle + 1));	
+			calle[tam_calle] = '\0';
+		
+			fscanf(archivo,"%d", &IDD);
+			fscanf(archivo,"%s", nombre);
+			fscanf(archivo,"%s", correo);
+			fscanf(archivo,"%s", telefono);
+			fscanf(archivo,"%s", municipio);
+			fscanf(archivo,"%s", calle);
+			fscanf(archivo,"%d", &numero);
+			
+			nodo_n->estado = 1;
+			nodo_n->next = NULL; 
+			nodo_n->ID = IDD; 
+			nodo_n->nombre = nombre; 
+			nodo_n->correo = correo; 
+			nodo_n->telefono = telefono;
+			nodo_n->municipio = municipio; 
+			nodo_n->calle = calle; 		
+			nodo_n->numero = numero;  
+							
+				if(*lista_c == NULL)
+					*lista_c = nodo_n;
+				else
+				{
+					nodo_n->next = *lista_c;
+					*lista_c = nodo_n; 
+				}
+
+		}    	
+	
+		fclose(archivo);
+	}
+	
+	return IDD;
+}
+
 
 
 int agregarClientes(CLIENTES* lista_c, int ID){
+		
 	CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
 	nodo_n->ID = ++ID; 
 	nodo_n->estado = 1;
@@ -39,9 +124,9 @@ int agregarClientes(CLIENTES* lista_c, int ID){
 	printf("Ingresa el nombre completo: ");fflush(stdin);
 	nodo_n->nombre = stringProcess();
 	printf("Ingresa el correo: ");fflush(stdin);
-	nodo_n->correo = stringProcess();
+	nodo_n->correo = stringProcess();	
 	printf("Ingresa el numero de telefono: ");fflush(stdin);
-	scanf("%d", &nodo_n->telefono);
+	nodo_n->telefono = stringProcess();
 	printf("\t--- D I R E C C I O N ---\nIngresa el municipio : "); fflush(stdin);
 	nodo_n->municipio = stringProcess();
 	printf("Ingresa la calle: ");fflush(stdin);
@@ -54,8 +139,38 @@ int agregarClientes(CLIENTES* lista_c, int ID){
 		nodo_n->next = *lista_c;
 		*lista_c = nodo_n; 
 	}
-	
 	return ID;
+}
+
+void actualizarClientes(CLIENTES lista_c)
+{
+	FILE*archivo_nuevo;
+	
+	archivo_nuevo= fopen("CLIENTES_TEMP.txt","w");
+	
+	if(archivo_nuevo==NULL)
+	{
+		printf("\nERROR AL ACTUALIZAR ARCHIVO\n");
+	}
+	
+	else
+	{
+		while(lista_c != NULL){
+			fprintf(archivo_nuevo,"%d ",strlen(lista_c->nombre));
+			fprintf(archivo_nuevo,"%d ",strlen(lista_c->correo));
+			fprintf(archivo_nuevo,"%d ",strlen(lista_c->telefono));
+			fprintf(archivo_nuevo,"%d ",strlen(lista_c->municipio));
+			fprintf(archivo_nuevo,"%d ",strlen(lista_c->calle));
+			fprintf(archivo_nuevo,"%d %s %s %s", lista_c->ID, lista_c->nombre, lista_c->correo, lista_c->telefono);
+			fprintf(archivo_nuevo," %s %s %d", lista_c->municipio, lista_c->calle, lista_c->numero);
+			fprintf(archivo_nuevo,"\n");
+			lista_c = lista_c->next;
+		}
+	
+	fclose(archivo_nuevo);
+	remove("CLIENTES.txt");
+	rename("CLIENTES_TEMP.txt","CLIENTES.txt");
+	}
 }
 
 int agregarLibros(LIBROS* lista_l, int ID){
@@ -173,9 +288,9 @@ void editarCliente(CLIENTES lista_c){
 
 void imprimirClientes(CLIENTES lista_c){
 	while(lista_c != NULL){
-		printf("ID: %d\nNombre: %s\nCorreo: %s\nTelefono: %d\n", lista_c->ID, lista_c->nombre, lista_c->correo, lista_c->telefono);
-		printf("--- DIRECCION ---\nCalle: %s\nMunicipio: %s\n Numero de casa: %d", lista_c->calle, lista_c->municipio, lista_c->numero);
-		printf("\n");
+		printf("ID: %d\nNombre: %s\nCorreo: %s\nTelefono: %s\n", lista_c->ID, lista_c->nombre, lista_c->correo, lista_c->telefono);
+		printf("--- DIRECCION ---\nMunicipio: %s\nCalle: %s\nNumero de casa: %d", lista_c->municipio, lista_c->calle, lista_c->numero);
+		printf("\n\n");
 		lista_c = lista_c->next;
 	}
 }
