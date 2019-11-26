@@ -117,7 +117,82 @@ int cargarClientes(CLIENTES* lista_c, int ID)
 }
 
 int cargarLibros(LIBROS* lista_l, int ID)
-int agregarClientes(CLIENTES* lista_c, int ID){
+{
+	int IDD;
+	
+	archivo = fopen("./FILES/LIBROS.txt","r");
+
+	if (archivo==NULL) 
+    { 
+        printf("COMPRUEBE QUE EL ARCHIVO LIBROS.txt ESTA CERRADO"); 
+    }	
+    else
+    {
+		while(!feof(archivo))
+		{
+					
+			int tam_titulo,tam_autor,tam_editorial, tam_notas;
+			int tipo, anio;
+			float precio;
+			unsigned long long int ISBN;
+			
+			LIBRO_N* nodo_n = (LIBRO_N*) malloc(sizeof(LIBRO_N));
+
+			fscanf(archivo,"%d",&tam_titulo);
+			fscanf(archivo,"%d",&tam_autor);
+			fscanf(archivo,"%d",&tam_editorial);
+			fscanf(archivo,"%d",&tam_notas);
+			
+			char *titulo = malloc(sizeof(char) * (tam_titulo + 1));	
+			titulo[tam_titulo] = '\0';
+	
+			char *autor = malloc(sizeof(char) * (tam_autor + 1));	
+			autor[tam_autor] = '\0';
+							
+			char *editorial = malloc(sizeof(char) * (tam_editorial + 1));	
+			editorial[tam_editorial] = '\0';
+	
+			char *notas = malloc(sizeof(char) * (tam_notas + 1));	
+			notas[tam_notas] = '\0';
+		
+			fscanf(archivo,"%d", &IDD);
+			fscanf(archivo,"%d", &tipo);
+			fscanf(archivo,"%d", &anio);
+			fscanf(archivo,"%llu", &ISBN);
+			fscanf(archivo,"%f", &precio);
+			fscanf(archivo,"%s", titulo);
+			fscanf(archivo,"%s", autor);
+			fscanf(archivo,"%s", editorial);
+			fscanf(archivo,"%s", notas);
+
+			nodo_n->next = NULL; 
+			nodo_n->ID = IDD;
+			nodo_n->tipo = tipo; 
+			nodo_n->anio_p = anio; 
+			nodo_n->ISBN = ISBN; 
+			nodo_n->precio = precio; 
+			nodo_n->titulo = titulo; 	
+			nodo_n->autor = autor; 	
+			nodo_n->editorial = editorial; 		
+			nodo_n->notas = notas;  
+							
+				if(*lista_l == NULL)
+					*lista_l = nodo_n;
+				else
+				{
+					nodo_n->next = *lista_l;
+					*lista_l = nodo_n; 
+				}
+
+		}    	
+	
+		fclose(archivo);
+	}
+	
+	return IDD;
+}
+int agregarClientes(CLIENTES* lista_c, int ID)
+{
 		
 	CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
 	nodo_n->ID = ++ID; 
