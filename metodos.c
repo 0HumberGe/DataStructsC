@@ -6,8 +6,9 @@ char BUFFER[MAX]={'\0'};
 
 struct cliente{
 	int numero;
-	char *telefono, *calle, *municipio;
+	char *calle, *municipio;
 	int ID, estado/*1 alta 0, baja*/;
+	unsigned long long int telefono;
 	char *nombre, *correo;
 	char *notas;
 	struct cliente* next;
@@ -53,14 +54,14 @@ int cargarClientes(CLIENTES* lista_c, int ID)
 		while(!feof(archivo))
 		{
 					
-			int tam_tel, tam_nombre,tam_correo,tam_municipio,tam_calle;
+			int tam_nombre,tam_correo,tam_municipio,tam_calle;
 			int numero;
+			unsigned long long int telefono;
 			
 			CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
 
 			fscanf(archivo,"%d",&tam_nombre);
 			fscanf(archivo,"%d",&tam_correo);
-			fscanf(archivo,"%d",&tam_tel);
 			fscanf(archivo,"%d",&tam_municipio);
 			fscanf(archivo,"%d",&tam_calle);
 			
@@ -69,9 +70,6 @@ int cargarClientes(CLIENTES* lista_c, int ID)
 	
 			char *correo = malloc(sizeof(char) * (tam_correo + 1));	
 			correo[tam_correo] = '\0';
-	
-			char *telefono = malloc(sizeof(char) * (tam_tel + 1));	
-			telefono[tam_tel] = '\0';
 							
 			char *municipio = malloc(sizeof(char) * (tam_municipio + 1));	
 			municipio[tam_municipio] = '\0';
@@ -82,7 +80,7 @@ int cargarClientes(CLIENTES* lista_c, int ID)
 			fscanf(archivo,"%d", &IDD);
 			fscanf(archivo,"%s", nombre);
 			fscanf(archivo,"%s", correo);
-			fscanf(archivo,"%s", telefono);
+			fscanf(archivo,"%llu", &telefono);
 			fscanf(archivo,"%s", municipio);
 			fscanf(archivo,"%s", calle);
 			fscanf(archivo,"%d", &numero);
@@ -126,7 +124,7 @@ int agregarClientes(CLIENTES* lista_c, int ID){
 	printf("Ingresa el correo: ");fflush(stdin);
 	nodo_n->correo = stringProcess();	
 	printf("Ingresa el numero de telefono: ");fflush(stdin);
-	nodo_n->telefono = stringProcess();
+	scanf("%llu", &(nodo_n->telefono));
 	printf("\t--- D I R E C C I O N ---\nIngresa el municipio : "); fflush(stdin);
 	nodo_n->municipio = stringProcess();
 	printf("Ingresa la calle: ");fflush(stdin);
@@ -158,10 +156,10 @@ void actualizarClientes(CLIENTES lista_c)
 		while(lista_c != NULL){
 			fprintf(archivo_nuevo,"%d ",strlen(lista_c->nombre));
 			fprintf(archivo_nuevo,"%d ",strlen(lista_c->correo));
-			fprintf(archivo_nuevo,"%d ",strlen(lista_c->telefono));
 			fprintf(archivo_nuevo,"%d ",strlen(lista_c->municipio));
 			fprintf(archivo_nuevo,"%d ",strlen(lista_c->calle));
-			fprintf(archivo_nuevo,"%d %s %s %s", lista_c->ID, lista_c->nombre, lista_c->correo, lista_c->telefono);
+			fprintf(archivo_nuevo,"%d %s %s", lista_c->ID, lista_c->nombre, lista_c->correo);
+			fprintf(archivo_nuevo," %llu", lista_c->telefono);			
 			fprintf(archivo_nuevo," %s %s %d", lista_c->municipio, lista_c->calle, lista_c->numero);
 			fprintf(archivo_nuevo,"\n");
 			lista_c = lista_c->next;
@@ -244,7 +242,7 @@ void editarCliente(CLIENTES lista_c){
 		return;
 	}
 	flag = 0;
-	printf("[1] - Nombre: %s\n[2] - Correo: %s\n[3] - Telefono: %d\n", lista_c->nombre, lista_c->correo, lista_c->telefono);
+	printf("[1] - Nombre: %s\n[2] - Correo: %s\n[3] - Telefono: %llu\n", lista_c->nombre, lista_c->correo, lista_c->telefono);
 	printf("[4] - Calle: %s\n[5] - Municipio: %s\n[6] - Numero de casa: %d", lista_c->calle, lista_c->municipio, lista_c->numero);
 	printf("\tSeleccione: ");
 	do
@@ -268,7 +266,7 @@ void editarCliente(CLIENTES lista_c){
 			break;	
 		case 3:
 			printf("Nuevo telefono: "); fflush(stdin);
-			scanf("%d", &(lista_c->telefono));
+			scanf("%llu", &(lista_c->telefono));
 			break;
 		case 4:
 			printf("Nueva calle: "); fflush(stdin);
@@ -288,7 +286,7 @@ void editarCliente(CLIENTES lista_c){
 
 void imprimirClientes(CLIENTES lista_c){
 	while(lista_c != NULL){
-		printf("ID: %d\nNombre: %s\nCorreo: %s\nTelefono: %s\n", lista_c->ID, lista_c->nombre, lista_c->correo, lista_c->telefono);
+		printf("ID: %d\nNombre: %s\nCorreo: %s\nTelefono: %llu\n", lista_c->ID, lista_c->nombre, lista_c->correo, lista_c->telefono);
 		printf("--- DIRECCION ---\nMunicipio: %s\nCalle: %s\nNumero de casa: %d", lista_c->municipio, lista_c->calle, lista_c->numero);
 		printf("\n\n");
 		lista_c = lista_c->next;
