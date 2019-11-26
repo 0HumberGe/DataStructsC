@@ -13,6 +13,8 @@ int main(){
 		
 	int op1,op2,op3;
 	
+	ID_c = cargarClientes(&lista_c,ID_c);
+	
 	do
 	{
 		system("cls");
@@ -21,7 +23,8 @@ int main(){
 		
 	imprimirClientes(lista_c);
 	imprimirLibro(lista_l);
-		
+	
+//		actualizarClientes(lista_c);
 ///////
 
 		printf("\n\t\tMENU PRINCIPAL\n");
