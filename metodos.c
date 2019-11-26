@@ -18,7 +18,9 @@ typedef struct cliente CLIENTE_N;
 typedef CLIENTE_N* CLIENTES;
 
 struct libro{
-	int ID, anio_p, ISBN, tipo, precio, estado;
+	int ID, anio_p, tipo;
+	float precio;
+	unsigned long long int ISBN;
 	char *titulo, *autor, *editorial, *notas;
 	struct libro* next;
 };
@@ -28,6 +30,7 @@ typedef LIBRO_N* LIBROS;
 
 
 int cargarClientes(CLIENTES*,int);
+int cargarLibros(LIBROS*,int);
 char* stringProcess();
 int agregarClientes(CLIENTES*, int);
 int agregarLibros(LIBROS*, int);
@@ -113,6 +116,7 @@ int cargarClientes(CLIENTES* lista_c, int ID)
 	return IDD;
 }
 
+int cargarLibros(LIBROS* lista_l, int ID)
 int agregarClientes(CLIENTES* lista_c, int ID){
 		
 	CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
@@ -192,9 +196,9 @@ int agregarLibros(LIBROS* lista_l, int ID){
 	printf("Ingresa el a%co de publicacion: ", 164);
 	scanf("%d", &(nodo_l->anio_p));
 	printf("Ingresa el ISBN: ");
-	scanf("%d", &(nodo_l->ISBN));
+	scanf("%llu", &(nodo_l->ISBN));
 	printf("Ingresa el precio: ");
-	scanf("%d", &(nodo_l->precio));	
+	scanf("%f", &(nodo_l->precio));	
 	if(*lista_l == NULL){
 		*lista_l = nodo_l;
 	}else{
@@ -205,12 +209,12 @@ int agregarLibros(LIBROS* lista_l, int ID){
 	return ID;
 }
 
-void imprimirLibro(LIBROS lista_l){
+void imprimirLibros(LIBROS lista_l){
 	while(lista_l != NULL){
 		printf("ID: %d\nTipo: %d", lista_l->ID,lista_l->tipo);
 		printf("\nTitulo: %s\nAutor: %s\nEditorial: %s\n", lista_l->titulo, lista_l->autor, lista_l->editorial);
-		printf("A%co de publicacion: %d\nISBN: %d\nPrecio: %d", 164, lista_l->anio_p, lista_l->ISBN, lista_l->precio);
-		printf("\n");		
+		printf("A%co de publicacion: %d\nISBN: %llu\nPrecio: %.2f", 164, lista_l->anio_p, lista_l->ISBN, lista_l->precio);
+		printf("\n\n");		
 		lista_l = lista_l->next;	
 	}
 }
@@ -365,7 +369,8 @@ void bajaCliente(CLIENTES* lista_c){
 				previo_c->next = aux_c->next;
 				free(aux_c);
 			}else
-				printf("El cliente con ID : %d no esta dado de alta", ID);
+				printf("\nEl cliente con ID : %d no esta dado de alta", ID);
+				getch();
 		}		
 	}
 }
@@ -417,7 +422,8 @@ void bajaLibro(LIBROS* lista_l, int ID){
 				previo_l->next = aux_l->next;
 				free(aux_l);
 			}else
-				printf("El libro con ID: %d, no esta dado de alta", ID);
+				printf("\nEl libro con ID: %d, no esta dado de alta", ID);
+				getch();
 		}
 	}	
 }

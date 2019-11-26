@@ -12,9 +12,11 @@ int main(){
 	int ID_l = 0;	
 		
 	int op1,op2,op3;
+	int x;
 	
 	ID_c = cargarClientes(&lista_c,ID_c);
-	
+	ID_l = cargarLibros(&lista_l,ID_l);
+		
 	do
 	{
 		system("cls");
@@ -22,7 +24,8 @@ int main(){
 // COMPROBACION DE MOVIMIENTOS //
 		
 	imprimirClientes(lista_c);
-	imprimirLibro(lista_l);
+	printf("\n\nLIBROS\n\n");
+	imprimirLibros(lista_l);
 	
 	//	actualizarClientes(lista_c);
 ///////
@@ -61,11 +64,17 @@ int main(){
 					break;
 
 					case 3:
+<<<<<<< HEAD
 						if(lista_c != NULL)
 							bajaCliente(&lista_c);	
 						else
 							printf("La lista está vacia, ingrese datos porfavor");
 							getch();	
+=======
+						printf("\nINGRESE EL CLIENTE A ELIMINAR: ");
+						scanf("%d",&x);
+						bajaCliente(&lista_c, x);
+>>>>>>> master
 					break;
 
 					default:
@@ -95,7 +104,9 @@ int main(){
 					break;
 
 					case 3:
-		
+						printf("\nINGRESE EL LIBRO A ELIMINAR: ");
+						scanf("%d",&x);
+						bajaLibro(&lista_l, x);		
 					break;
 
 					default:
