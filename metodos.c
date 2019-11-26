@@ -1,13 +1,13 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
-#define MAX 100
+#define MAX 150
 char BUFFER[MAX]={'\0'};
 
 struct cliente{
 	int numero;
 	char *calle, *municipio;
-	int ID, estado/*1 alta 0, baja*/;
+	int ID;
 	unsigned long long int telefono;
 	char *nombre, *correo;
 	char *notas;
@@ -18,7 +18,7 @@ typedef struct cliente CLIENTE_N;
 typedef CLIENTE_N* CLIENTES;
 
 struct libro{
-	int ID, anio_p, ISBN, tipo, precio;
+	int ID, anio_p, ISBN, tipo, precio, estado;
 	char *titulo, *autor, *editorial, *notas;
 	struct libro* next;
 };
@@ -34,8 +34,10 @@ int agregarLibros(LIBROS*, int);
 void imprimirClientes(CLIENTES);
 void imprimirLibros(LIBROS);
 void actualizarClientes(CLIENTES);
-void bajaCliente(CLIENTES*, int);
+void bajaCliente(CLIENTES*);
 void bajaLibro(LIBROS*, int);
+void editarCliente(CLIENTES);
+void llenarBuffer();
 
 FILE*archivo_viejo;
 FILE*archivo_nuevo;
@@ -86,8 +88,6 @@ int cargarClientes(CLIENTES* lista_c, int ID)
 			fscanf(archivo,"%s", municipio);
 			fscanf(archivo,"%s", calle);
 			fscanf(archivo,"%d", &numero);
-			
-			nodo_n->estado = 1;
 			nodo_n->next = NULL; 
 			nodo_n->ID = IDD; 
 			nodo_n->nombre = nombre; 
@@ -113,13 +113,10 @@ int cargarClientes(CLIENTES* lista_c, int ID)
 	return IDD;
 }
 
-
-
 int agregarClientes(CLIENTES* lista_c, int ID){
 		
 	CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
 	nodo_n->ID = ++ID; 
-	nodo_n->estado = 1;
 	nodo_n->next = NULL; 
 	printf("Ingresa el nombre completo: ");fflush(stdin);
 	nodo_n->nombre = stringProcess();
@@ -129,9 +126,9 @@ int agregarClientes(CLIENTES* lista_c, int ID){
 	scanf("%llu", &(nodo_n->telefono));
 	printf("\t--- D I R E C C I O N ---\nIngresa el municipio : "); fflush(stdin);
 	nodo_n->municipio = stringProcess();
-	printf("Ingresa la calle: ");fflush(stdin);
+	printf("Ingresa la calle: ");fflush(stdin); 
 	nodo_n->calle = stringProcess();
-	printf("Ingresa el numero de casa: ");fflush(stdin);
+	printf("Ingresa el numero de casa: ");fflush(stdin); 
 	scanf("%d", &(nodo_n->numero));
 	if(*lista_c == NULL)
 		*lista_c = nodo_n;
@@ -176,6 +173,7 @@ void actualizarClientes(CLIENTES lista_c)
 int agregarLibros(LIBROS* lista_l, int ID){
 	LIBRO_N* nodo_l = (LIBRO_N*) malloc(sizeof(LIBRO_N));
 	nodo_l->ID = ++ID;
+	nodo_l->estado=1;
 	nodo_l->next = NULL; fflush(stdin);
 	do{
 		printf("Tipo de libro:\n1 - Renta\n2 - Venta\n3 - Solo lectura\nOPCION: ");
@@ -185,11 +183,11 @@ int agregarLibros(LIBROS* lista_l, int ID){
 	
 	fflush(stdin);
 	
-	printf("Ingresa el titulo del libro: ");
+	printf("Ingresa el titulo del libro: "); fflush(stdin); 
 	nodo_l->titulo = stringProcess();
-	printf("Ingresa el autor: ");
+	printf("Ingresa el autor: "); fflush(stdin);
 	nodo_l->autor = stringProcess();
-	printf("Ingresa la editorial: ");
+	printf("Ingresa la editorial: "); fflush(stdin);
 	nodo_l->editorial = stringProcess();
 	printf("Ingresa el a%co de publicacion: ", 164);
 	scanf("%d", &(nodo_l->anio_p));
@@ -221,9 +219,7 @@ void editarCliente(CLIENTES lista_c){
 	int opcion, flag=1;
 	printf("\t--- CLIENTES ---\n");
 	while(lista_c != NULL){
-		if(lista_c->estado == 1){
 			printf("ID: %d\t-\t%s\n", lista_c->ID, lista_c->nombre);
-		}
 		lista_c = lista_c->next;
 	}
 		printf("0 \t-\t Salir\tSELECCIONE(ID): "); fflush(stdin);
@@ -295,8 +291,35 @@ void imprimirClientes(CLIENTES lista_c){
 	}
 }
 
-void bajaCliente(CLIENTES* lista_c, int ID){
-	CLIENTES aux_c = NULL;
+void bajaCliente(CLIENTES* lista_c){
+	CLIENTES aux_c = *lista_c;
+	int ID, flag=1;
+	printf("\t--- CLIENTES ---\n");
+	while(*lista_c != NULL){
+		printf("ID: %d\t-\t%s\n", (*lista_c)->ID, (*lista_c)->nombre);
+		*lista_c = (*lista_c)->next;
+	}
+		printf("0 \t-\t Salir\t\nSELECCIONE(ID): "); fflush(stdin);
+	do{
+		scanf("%d", &ID);
+		*lista_c = aux_c;
+		while(*lista_c != NULL){
+			if((*lista_c)->ID == ID || ID == 0){
+				flag=0;
+				break;
+			}
+			*lista_c = (*lista_c)->next;
+		}
+		if(flag){
+			printf("ID no dado de alta. Ingrese un ID valido: "); fflush(stdin);
+		}
+	}while(flag);
+	if(ID == 0)
+	{
+		return;
+	}
+	*lista_c = aux_c;
+	aux_c = NULL;
 	if((*lista_c)->ID == ID)
 	{
 		if((*lista_c)->next == NULL)
@@ -400,11 +423,24 @@ void bajaLibro(LIBROS* lista_l, int ID){
 }
 
 char* stringProcess(){
-	int lng;
+	int lng, i;
+	llenarBuffer();
 	fgets(BUFFER, MAX, stdin);
 	lng = strlen(BUFFER);
-	--lng;
-	char* string = (char*)malloc(lng * sizeof(char));
-	strncpy(string, BUFFER, lng);
+	char* string = (char*)malloc(lng-1 * sizeof(char));fflush(stdin);
+	for(i=0; i<lng-1; i++)
+	{
+		*(string+i) = BUFFER[i];	
+	}
+//	strncpy(string, BUFFER, lng);
+	*(string+(lng-1)) = '\0';
 	return string;
+}
+
+void llenarBuffer(){
+	int i;
+	for(i=0; i<MAX; i++)
+	{
+		BUFFER[i] = '\0';
+	}
 }

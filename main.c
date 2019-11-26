@@ -24,7 +24,7 @@ int main(){
 	imprimirClientes(lista_c);
 	imprimirLibro(lista_l);
 	
-//		actualizarClientes(lista_c);
+	//	actualizarClientes(lista_c);
 ///////
 
 		printf("\n\t\tMENU PRINCIPAL\n");
@@ -50,14 +50,22 @@ int main(){
 				{
 					case 1:
 						ID_c = agregarClientes(&lista_c, ID_c);							
-					break;
+						break;
 		
 					case 2:
-		
+						if(lista_c != NULL)
+							editarCliente(lista_c);	
+						else
+							printf("La lista está vacia, ingrese datos porfavor");
+							getch();
 					break;
 
 					case 3:
-		
+						if(lista_c != NULL)
+							bajaCliente(&lista_c);	
+						else
+							printf("La lista está vacia, ingrese datos porfavor");
+							getch();	
 					break;
 
 					default:
@@ -186,12 +194,12 @@ int main(){
 			break;
 
 			case 5:
-				printf("\nPROGRAMA TERMINADO, PRECIONE CUALQUIER TECLA PARA CERRAR");
+				printf("\nPROGRAMA TERMINADO, PRESIONE CUALQUIER TECLA PARA CERRAR");
 				getch();
 			break;
 						
 			default:
-				printf("\nOPCION NO VALIDA, PRECIONE CUALQUIER TECLA PARA CONTINUAR");
+				printf("\nOPCION NO VALIDA, PRESIONE CUALQUIER TECLA PARA CONTINUAR");
 				getch();
 			break;		
 		}
