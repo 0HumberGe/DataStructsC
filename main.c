@@ -64,17 +64,14 @@ int main(){
 					break;
 
 					case 3:
-<<<<<<< HEAD
 						if(lista_c != NULL)
 							bajaCliente(&lista_c);	
 						else
 							printf("La lista está vacia, ingrese datos porfavor");
 							getch();	
-=======
 						printf("\nINGRESE EL CLIENTE A ELIMINAR: ");
 						scanf("%d",&x);
 						bajaCliente(&lista_c, x);
->>>>>>> master
 					break;
 
 					default:
