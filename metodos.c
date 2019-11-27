@@ -18,7 +18,7 @@ typedef struct cliente CLIENTE_N;
 typedef CLIENTE_N* CLIENTES;
 
 struct libro{
-	int ID, anio_p, tipo;
+	int ID, anio_p, tipo,estado;
 	float precio;
 	unsigned long long int ISBN;
 	char *titulo, *autor, *editorial, *notas;

@@ -69,9 +69,6 @@ int main(){
 						else
 							printf("La lista está vacia, ingrese datos porfavor");
 							getch();	
-						printf("\nINGRESE EL CLIENTE A ELIMINAR: ");
-						scanf("%d",&x);
-						bajaCliente(&lista_c, x);
 					break;
 
 					default:
