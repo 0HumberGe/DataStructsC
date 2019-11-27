@@ -59,7 +59,7 @@ int main(){
 						if(lista_c != NULL)
 							editarCliente(lista_c);	
 						else
-							printf("La lista está vacia, ingrese datos porfavor");
+							printf("La lista esta vacia, porfavor ingrese datos");
 							getch();
 					break;
 
@@ -67,7 +67,7 @@ int main(){
 						if(lista_c != NULL)
 							bajaCliente(&lista_c);	
 						else
-							printf("La lista está vacia, ingrese datos porfavor");
+							printf("La lista esta vacia, porfavor ingrese datos");
 							getch();	
 					break;
 
@@ -94,13 +94,17 @@ int main(){
 					break;
 		
 					case 2:
-		
+						if(lista_l != NULL)
+							editarLibro(lista_l);
+						else
+							printf("\nLa lista esta vacia, porfavor ingrese datos");
 					break;
 
 					case 3:
-						printf("\nINGRESE EL LIBRO A ELIMINAR: ");
-						scanf("%d",&x);
-						bajaLibro(&lista_l, x);		
+						if(lista_l != NULL)
+							bajaLibro(&lista_l);
+						else
+							printf("\nLa lista esta vacia, porfavor ingrese datos.");		
 					break;
 
 					default:
@@ -157,38 +161,17 @@ int main(){
 				switch(op2)
 				{
 					case 1:
-							
+							if(lista_c != NULL)
+								buscarCliente(lista_c);
+							else
+								printf("\nLa lista esta vacia, porfavor ingrese datos");	
 					break;
 		
 					case 2:
-						system("cls");		
-						printf("\t\tBUSCAR POR LIBRO\n");
-						printf("\n[1] BUSQUEDA POR TITULO");
-						printf("\n[2] BUSQUEDA POR AUTOR");	
-						printf("\n[3] BUSQUEDA POR ISBN");					
-						printf("\n\n\t\t\t\tSELECCIONE OPCION: ");	
-						scanf("%d",&op3);
-						
-						switch(op3)
-						{
-							case 1:
-									
-							break;
-				
-							case 2:
-				
-							break;
-		
-							case 3:
-				
-							break;
-		
-							default:
-								printf("\nOPCION NO VALIDA, PRECIONE CUALQUIER TECLA PARA CONTINUAR");
-								getch();
-							break;
-						}		
-		
+							if(lista_ != NULL)
+								buscarLibro(lista_l);
+							else
+								printf("\nLa lista esta vacia, porfavor ingrese datos");
 					break;
 
 					default:

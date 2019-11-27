@@ -38,9 +38,12 @@ void imprimirClientes(CLIENTES);
 void imprimirLibros(LIBROS);
 void actualizarClientes(CLIENTES);
 void bajaCliente(CLIENTES*);
-void bajaLibro(LIBROS*, int);
+void bajaLibro(LIBROS*);
 void editarCliente(CLIENTES);
 void llenarBuffer();
+void buscarLibro(LIBROS);
+void buscarCliente(CLIENTES);
+void editarLibro(LIBROS);
 
 FILE*archivo_viejo;
 FILE*archivo_nuevo;
@@ -320,7 +323,7 @@ void editarCliente(CLIENTES lista_c){
 	}
 	flag = 0;
 	printf("[1] - Nombre: %s\n[2] - Correo: %s\n[3] - Telefono: %llu\n", lista_c->nombre, lista_c->correo, lista_c->telefono);
-	printf("[4] - Calle: %s\n[5] - Municipio: %s\n[6] - Numero de casa: %d", lista_c->calle, lista_c->municipio, lista_c->numero);
+	printf("[4] - Calle: %s\n[5] - Municipio: %s\n[6] - Numero de casa: %d\n", lista_c->calle, lista_c->municipio, lista_c->numero);
 	printf("\tSeleccione: ");
 	do
 	{
@@ -361,6 +364,80 @@ void editarCliente(CLIENTES lista_c){
 	}
 }
 
+void editarLibro(LIBROS lista_l){
+	int opcion, flag = 1;
+	LIBROS aux_l = lista_l;
+	printf("\t--- LIBROS ---\n");
+	while(lista_l != NULL){
+		printf("ID: %d\t-\t%s\n", lista_l->ID, lista_l->titulo);
+		ista_l = lista_l->next;
+	}
+	printf("0 \t-\tSalir\tSELECCIONE (ID): "); fflush(stdin);
+	do{
+		lista_l = aux_l;
+		scanf("%d", &opcion);
+		while(lista_l != NULL){
+			if(lista_l->ID == opcion || opcion == 0){
+				flag=0;
+				break;
+			}
+			lista_l = lista_l->next;
+		}
+		if(flag){
+			printf("ID no dado de alta. Ingrese un ID valido:");
+		}
+	}while(flag);
+	if(opcion == 0){
+		return;
+	}
+	flag=0;
+	printf("[1] - Titulo: %s\n[2] - Autor: %s\n[3] - Editorial: %s\n", lista_l->titulo, lista_l->autor, lista_l->editorial);
+	printf("[4] - ISBN: %llu\n[5] - Precio: %d\n[6] - Tipo de libro: %d\n", lista_l->ISBN, lista_l->precio, lista_l->tipo);
+	printf("[7] - A%co de publicacion: %d\n\tSeleccione: ", 164, lista_l->anio_p);
+	do
+	{
+		scanf("%d", &opcion);
+		if(opcion < 1 && opcion >6){
+			printf("Ingrese una opcion valida: ") fflush(stdin);
+			flag=1;
+		}
+	}while(flag);
+	switch(opcion){
+		case 1: 
+			printf("Nuevo titulo: "); fflush(stdin);
+			free(lista_l->titulo);
+			lista_l->titulo = stringProcess();
+			break;
+		case 2:
+			printf("Nuevo autor: ");fflush(stdin);
+			free(lista_l->autor);
+			lista_l->autor = stringProcess();
+			break;
+		case 3:
+			printf("Nueva editorial: "); fflush(stdin);
+			free(lista_l->editorial);
+			lista_l->editorial = stringProcess();
+			break;
+		case 4:
+			printf("Nuevo ISBN: ");
+			scanf("%llu", &(lista_l->ISBN));
+			break;
+		case 5:
+			printf("Nuevo precio: ");
+			scanf("%f", &(lista_l->precio));
+			break;
+		case 6:
+			do{
+				printf("Nuevo tipo de libro:\n1 - Renta\n2 - Venta\n3 - Solo lectura\nOPCION: ");fflush(stdin);
+				scanf("%d", &(lista_l->tipo));
+			}while(lista_l->tipo < 0 && lista_l->tipo > 4);
+			break;
+		case 7: 
+			printf("Nuevo a%co de publicacion: ", 164);
+			scanf("%d", &(lista_l->anio_p));
+	}
+}
+
 void imprimirClientes(CLIENTES lista_c){
 	while(lista_c != NULL){
 		printf("ID: %d\nNombre: %s\nCorreo: %s\nTelefono: %llu\n", lista_c->ID, lista_c->nombre, lista_c->correo, lista_c->telefono);
@@ -390,7 +467,7 @@ void bajaCliente(CLIENTES* lista_c){
 			*lista_c = (*lista_c)->next;
 		}
 		if(flag){
-			printf("ID no dado de alta. Ingrese un ID valido: "); fflush(stdin);
+			printf("\nID no dado de alta. Ingrese un ID valido: "); fflush(stdin);
 		}
 	}while(flag);
 	if(ID == 0)
@@ -450,8 +527,35 @@ void bajaCliente(CLIENTES* lista_c){
 	}
 }
 
-void bajaLibro(LIBROS* lista_l, int ID){
-	LIBROS aux_l = NULL;
+void bajaLibro(LIBROS* lista_l){
+	LIBROS aux_l = *lista_l;
+	int ID, flag=1;
+	printf("\t--- LIBROS ---\n");
+	while(*lista_l != NULL){
+		printf("ID: %d\t-\t%s\n", (*lista_l)->ID, (*lista_l)->titulo);
+		*lista_l = (*lista_l)->next;
+	}
+		printf("0 \t-\t Salir\t\nSELECCIONE(ID): "); fflush(stdin);
+	do{
+		scanf("%d", &ID);
+		*lista_l = aux_l;
+		while(*lista_l != NULL){
+			if((*lista_l)->ID == ID || ID == 0){
+				flag=0;
+				break;
+			}
+			*lista_l = (*lista_l)->next;
+		}
+		if(flag){
+			printf("ID no dado de alta. Ingrese un ID valido: "); fflush(stdin);
+		}
+	}while(flag);
+	if(ID == 0)
+	{
+		return;
+	}
+	*lista_l = aux_l;
+	aux_l = NULL;
 	if((*lista_l)->ID == ID)
 	{
 		if((*lista_l)->next == NULL)
@@ -503,6 +607,144 @@ void bajaLibro(LIBROS* lista_l, int ID){
 	}	
 }
 
+void buscarLibro(LIBROS lista){
+	int op, b=0;
+	char auxs[20];
+	int auxi;
+	int contadorRenta,contadorVenta,contadorSoloLectura;
+	do{
+		b=0;
+		LIBROS lista_l=lista; //auxiliar, no le cambié el nombre para no borrar lo que ya tenía.
+		system("cls");
+		printf("Buscar por: \n");
+		printf("1.- Titulo. \n");
+		printf("2.- Autor. \n");
+		printf("3.- ISBN \n");
+		printf("4.- Regresar. \n");
+		printf("Opcion: ");
+		scanf("%d",&op);
+		contadorRenta=0;
+		contadorVenta=0;
+		contadorSoloLectura=0;
+		system("cls");
+		switch(op){
+			case 1:
+				fflush(stdin);
+				printf("Ingrese titulo del libro: ");
+				gets(auxs);
+				system("cls");
+				while(lista_l != NULL){
+					if(stricmp(auxs,lista_l->titulo)==0){
+						printf("ID: %d\nTipo: %d", lista_l->ID,lista_l->tipo);
+						printf("\nTitulo: %s\nAutor: %s\nEditorial: %s\n", lista_l->titulo, lista_l->autor, lista_l->editorial);
+						printf("A%co de publicacion: %d\nISBN: %d\nPrecio: %d", 164, lista_l->anio_p, lista_l->ISBN, lista_l->precio);
+						printf("\n\n");
+						b=1;
+						if(lista_l->tipo==1){
+							contadorRenta++;
+						}
+						if(lista_l->tipo==2){
+							contadorVenta++;
+						}
+						if(lista_l->tipo==3){
+							contadorSoloLectura++;
+						}
+					}
+					lista_l = lista_l->next;
+				}
+				if(b==0)
+					printf("No se encontro informacion del titulo %s.\n", auxs);
+				else
+					printf("Libros de Venta: %d, Libros de Renta: %d, Libros de Solo Lectura: %d\n", contadorVenta, contadorRenta, contadorSoloLectura);
+				printf("\n");
+				system("pause");
+				break;
+			case 2:
+				fflush(stdin);
+				printf("Ingrese autor del libro: ");
+				gets(auxs);
+				system("cls");
+				while(lista_l != NULL){
+					if(stricmp(auxs,lista_l->autor)==0){
+						printf("ID: %d\nTipo: %d", lista_l->ID,lista_l->tipo);
+						printf("\nTitulo: %s\nAutor: %s\nEditorial: %s\n", lista_l->titulo, lista_l->autor, lista_l->editorial);
+						printf("A%co de publicacion: %d\nISBN: %d\nPrecio: %d", 164, lista_l->anio_p, lista_l->ISBN, lista_l->precio);
+						printf("\n\n");
+						b=1;
+						if(lista_l->tipo==1){
+							contadorRenta++;
+						}
+						if(lista_l->tipo==2){
+							contadorVenta++;
+						}
+						if(lista_l->tipo==3){
+							contadorSoloLectura++;
+						}
+					}
+					lista_l = lista_l->next;
+				}
+				if(b==0)
+					printf("No se encontro informacion del autor %s.\n", auxs);
+				else
+					printf("Libros de Venta: %d, Libros de Renta: %d, Libros de Solo Lectura: %d\n", contadorVenta, contadorRenta, contadorSoloLectura);
+				printf("\n");
+				system("pause");
+				break;
+			case 3:
+				fflush(stdin);
+				printf("Ingrese ISBN del libro: ");
+				scanf("%d",&auxi);
+				system("cls");
+				while(lista_l != NULL){
+					if(auxi==lista_l->ISBN){
+						printf("ID: %d\nTipo: %d", lista_l->ID,lista_l->tipo);
+						printf("\nTitulo: %s\nAutor: %s\nEditorial: %s\n", lista_l->titulo, lista_l->autor, lista_l->editorial);
+						printf("A%co de publicacion: %d\nISBN: %d\nPrecio: %d", 164, lista_l->anio_p, lista_l->ISBN, lista_l->precio);
+						printf("\n\n");
+						b=1;
+						if(lista_l->tipo==1){
+							contadorRenta++;
+						}
+						if(lista_l->tipo==2){
+							contadorVenta++;
+						}
+						if(lista_l->tipo==3){
+							contadorSoloLectura++;
+						}
+					}
+					lista_l = lista_l->next;
+				}
+				if(b==0)
+					printf("No se encontro informacion del ISBN %d.\n", auxi);
+				else
+					printf("Libros de Venta: %d, Libros de Renta: %d, Libros de Solo Lectura: %d\n", contadorVenta, contadorRenta, contadorSoloLectura);
+				printf("\n");
+				system("pause");
+				break;
+		}
+	}while(op!=4);
+}
+
+void buscarCliente(CLIENTES lista){
+	int aux;
+	int b=0;
+	CLIENTES lista_c=lista;
+	printf("Introduzca ID del cliente: ");
+	scanf("%d", &aux);
+	system("cls");
+	while(lista_c!=NULL&&b==0){
+		if(aux==lista_c->ID){
+			printf("ID: %d \nNombre: %s\n\n",lista_c->ID,lista_c->nombre);
+			b=1;
+		}
+		lista_c=lista_c->next;
+	}
+	if(b==0)
+		printf("No se encontro informacion de cliente %d.\n",aux);
+	printf("\n");
+	system("pause");
+}
+
 char* stringProcess(){
 	int lng, i;
 	llenarBuffer();
@@ -513,7 +755,6 @@ char* stringProcess(){
 	{
 		*(string+i) = BUFFER[i];	
 	}
-//	strncpy(string, BUFFER, lng);
 	*(string+(lng-1)) = '\0';
 	return string;
 }
