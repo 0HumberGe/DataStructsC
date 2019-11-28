@@ -8,13 +8,10 @@ int main(){
 	CLIENTES lista_c = NULL;
 	LIBROS lista_l = NULL;
 	
-	int ID_c = 0;	
 	int ID_l = 0;	
 		
 	int op1,op2,op3;
 	int x;
-	
-	ID_c = cargarClientes(&lista_c,ID_c);
 	ID_l = cargarLibros(&lista_l,ID_l);
 		
 	do
@@ -22,7 +19,10 @@ int main(){
 		system("cls");
 
 // COMPROBACION DE MOVIMIENTOS //
-	actualizarClientes(lista_c);
+	if(lista_c == NULL){
+		cargarClientes(&lista_c); // Solo si está vacía la lista se cargaran los datos.
+	}
+	
 	imprimirClientes(lista_c);
 	printf("\n\nLIBROS\n\n");
 	imprimirLibros(lista_l);
@@ -49,7 +49,8 @@ int main(){
 				switch(op2)
 				{
 					case 1:
-						ID_c = agregarClientes(&lista_c, ID_c);							
+						agregarClientes(&lista_c);
+						actualizarClientes(lista_c);							
 						break;
 		
 					case 2:
