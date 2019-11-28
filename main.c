@@ -22,13 +22,10 @@ int main(){
 		system("cls");
 
 // COMPROBACION DE MOVIMIENTOS //
-		
+	actualizarClientes(lista_c);
 	imprimirClientes(lista_c);
 	printf("\n\nLIBROS\n\n");
 	imprimirLibros(lista_l);
-	
-	//	actualizarClientes(lista_c);
-///////
 
 		printf("\n\t\tMENU PRINCIPAL\n");
 		printf("\n[1] CLIENTES");
@@ -168,7 +165,7 @@ int main(){
 					break;
 		
 					case 2:
-							if(lista_ != NULL)
+							if(lista_l != NULL)
 								buscarLibro(lista_l);
 							else
 								printf("\nLa lista esta vacia, porfavor ingrese datos");
