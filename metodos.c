@@ -461,7 +461,6 @@ void editarLibro(LIBROS lista_l){
 			scanf("%d", &(lista_l->anio_p));
 	}
 }
-
 void imprimirClientes(CLIENTES lista_c){
 	while(lista_c != NULL){
 		printf("ID: %d\nNombre: %s\nCorreo: %s\nTelefono: %llu\n", lista_c->ID, lista_c->nombre, lista_c->correo, lista_c->telefono);
@@ -470,7 +469,6 @@ void imprimirClientes(CLIENTES lista_c){
 		lista_c = lista_c->next;
 	}
 }
-
 void bajaCliente(CLIENTES* lista_c){
 	CLIENTES aux_c = *lista_c;
 	int ID, flag=1;
