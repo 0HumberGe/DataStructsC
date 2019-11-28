@@ -51,7 +51,7 @@ FILE*archivo;
 
 int cargarClientes(CLIENTES* lista_c, int ID)
 {
-	int IDD;
+	int id;
 	
 	archivo = fopen("./FILES/CLIENTES.txt","r");
 
@@ -63,60 +63,56 @@ int cargarClientes(CLIENTES* lista_c, int ID)
     {
 		while(!feof(archivo))
 		{
-					
-			int tam_nombre,tam_correo,tam_municipio,tam_calle;
-			int numero;
+			int size_name, size_email, size_city, size_street;
+			fscanf(archivo, "%d %d %d %d ", &size_name, &size_email, &size_city, &size_street);
+			char *name = malloc(sizeof(char) * (size_name + 1));	
+			name[size_name] = '\0';
+	
+			char *email = malloc(sizeof(char) * (size_email + 1));	
+			email[size_email] = '\0';
+							
+			char *city = malloc(sizeof(char) * (size_city + 1));	
+			city[size_city] = '\0';
+	
+			char *street = malloc(sizeof(char) * (size_street + 1));	
+			street[size_street] = '\0';
+			
+			int numero_de_casa;
 			unsigned long long int telefono;
 			
-			CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
-
-			fscanf(archivo,"%d",&tam_nombre);
-			fscanf(archivo,"%d",&tam_correo);
-			fscanf(archivo,"%d",&tam_municipio);
-			fscanf(archivo,"%d",&tam_calle);
+			fscanf(archivo, "|%d|%150[^|]|%150[^|]|%llu|%150[^|]|%150[^|]|%d|\n",
+			&id,
+			name,
+			email,
+			&telefono,
+			city,
+			street,
+			&numero_de_casa);
 			
-			char *nombre = malloc(sizeof(char) * (tam_nombre + 1));	
-			nombre[tam_nombre] = '\0';
-	
-			char *correo = malloc(sizeof(char) * (tam_correo + 1));	
-			correo[tam_correo] = '\0';
-							
-			char *municipio = malloc(sizeof(char) * (tam_municipio + 1));	
-			municipio[tam_municipio] = '\0';
-	
-			char *calle = malloc(sizeof(char) * (tam_calle + 1));	
-			calle[tam_calle] = '\0';
-		
-			fscanf(archivo,"%d", &IDD);
-			fscanf(archivo,"%s", nombre);
-			fscanf(archivo,"%s", correo);
-			fscanf(archivo,"%llu", &telefono);
-			fscanf(archivo,"%s", municipio);
-			fscanf(archivo,"%s", calle);
-			fscanf(archivo,"%d", &numero);
+			CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
 			nodo_n->next = NULL; 
-			nodo_n->ID = IDD; 
-			nodo_n->nombre = nombre; 
-			nodo_n->correo = correo; 
+			nodo_n->ID = id; 
+			nodo_n->nombre = name; 
+			nodo_n->correo = email; 
 			nodo_n->telefono = telefono;
-			nodo_n->municipio = municipio; 
-			nodo_n->calle = calle; 		
-			nodo_n->numero = numero;  
+			nodo_n->municipio = city; 
+			nodo_n->calle = street; 		
+			nodo_n->numero = numero_de_casa;  
 							
-				if(*lista_c == NULL)
-					*lista_c = nodo_n;
-				else
-				{
-					nodo_n->next = *lista_c;
-					*lista_c = nodo_n; 
-				}
+			if(*lista_c == NULL)
+				*lista_c = nodo_n;
+			else
+			{
+				nodo_n->next = *lista_c;
+				*lista_c = nodo_n; 
+			}
 
 		}    	
 	
 		fclose(archivo);
 	}
 	
-	return IDD;
+	return id;
 }
 
 int cargarLibros(LIBROS* lista_l, int ID)
@@ -235,14 +231,20 @@ void actualizarClientes(CLIENTES lista_c)
 	else
 	{
 		while(lista_c != NULL){
-			fprintf(archivo_nuevo,"%d ",strlen(lista_c->nombre));
-			fprintf(archivo_nuevo,"%d ",strlen(lista_c->correo));
-			fprintf(archivo_nuevo,"%d ",strlen(lista_c->municipio));
-			fprintf(archivo_nuevo,"%d ",strlen(lista_c->calle));
-			fprintf(archivo_nuevo,"%d %s %s", lista_c->ID, lista_c->nombre, lista_c->correo);
-			fprintf(archivo_nuevo," %llu", lista_c->telefono);			
-			fprintf(archivo_nuevo," %s %s %d", lista_c->municipio, lista_c->calle, lista_c->numero);
-			fprintf(archivo_nuevo,"\n");
+			fprintf(archivo_nuevo,"%d %d %d %d ",
+			strlen(lista_c->nombre),
+			strlen(lista_c->correo),
+			strlen(lista_c->municipio),
+			strlen(lista_c->calle));
+			
+			fprintf(archivo_nuevo,"|%d|%s|%s|%llu|%s|%s|%d|\n",
+			lista_c->ID,
+			lista_c->nombre,
+			lista_c->correo,
+			lista_c->telefono,
+			lista_c->municipio,
+			lista_c->calle,
+			lista_c->numero);
 			lista_c = lista_c->next;
 		}
 	
@@ -370,7 +372,7 @@ void editarLibro(LIBROS lista_l){
 	printf("\t--- LIBROS ---\n");
 	while(lista_l != NULL){
 		printf("ID: %d\t-\t%s\n", lista_l->ID, lista_l->titulo);
-		ista_l = lista_l->next;
+		lista_l = lista_l->next;
 	}
 	printf("0 \t-\tSalir\tSELECCIONE (ID): "); fflush(stdin);
 	do{
@@ -398,7 +400,7 @@ void editarLibro(LIBROS lista_l){
 	{
 		scanf("%d", &opcion);
 		if(opcion < 1 && opcion >6){
-			printf("Ingrese una opcion valida: ") fflush(stdin);
+			printf("Ingrese una opcion valida: "); fflush(stdin);
 			flag=1;
 		}
 	}while(flag);
