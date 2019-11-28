@@ -29,10 +29,13 @@ typedef struct libro LIBRO_N;
 typedef LIBRO_N* LIBROS;
 
 
-int cargarClientes(CLIENTES*,int);
 int cargarLibros(LIBROS*,int);
 char* stringProcess();
-int agregarClientes(CLIENTES*, int);
+
+void agregarClientes(CLIENTES*);
+int validarIdClientes(int, CLIENTES);
+void cargarClientes(CLIENTES*);
+
 int agregarLibros(LIBROS*, int);
 void imprimirClientes(CLIENTES);
 void imprimirLibros(LIBROS);
@@ -49,15 +52,13 @@ FILE*archivo_viejo;
 FILE*archivo_nuevo;
 FILE*archivo;
 
-int cargarClientes(CLIENTES* lista_c, int ID)
+void cargarClientes(CLIENTES* lista_c)
 {
-	int id;
-	
 	archivo = fopen("./FILES/CLIENTES.txt","r");
 
 	if (archivo==NULL) 
     { 
-        printf("COMPRUEBE QUE EL ARCHIVO CLIENTES.txt ESTA CERRADO"); 
+        printf("Archivo CLIENTES.txt vacio."); 
     }	
     else
     {
@@ -77,7 +78,7 @@ int cargarClientes(CLIENTES* lista_c, int ID)
 			char *street = malloc(sizeof(char) * (size_street + 1));	
 			street[size_street] = '\0';
 			
-			int numero_de_casa;
+			int id, numero_de_casa;
 			unsigned long long int telefono;
 			
 			fscanf(archivo, "|%d|%150[^|]|%150[^|]|%llu|%150[^|]|%150[^|]|%d|\n",
@@ -111,8 +112,6 @@ int cargarClientes(CLIENTES* lista_c, int ID)
 	
 		fclose(archivo);
 	}
-	
-	return id;
 }
 
 int cargarLibros(LIBROS* lista_l, int ID)
@@ -190,11 +189,13 @@ int cargarLibros(LIBROS* lista_l, int ID)
 	
 	return IDD;
 }
-int agregarClientes(CLIENTES* lista_c, int ID)
-{
-		
+void agregarClientes(CLIENTES* lista_c)
+{	
 	CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
-	nodo_n->ID = ++ID; 
+	do{
+		printf("Ingrese un id(unico): ");
+		scanf("%d", &nodo_n->ID);
+	}while(validarIdClientes(nodo_n->ID, *lista_c));
 	nodo_n->next = NULL; 
 	printf("Ingresa el nombre completo: ");fflush(stdin);
 	nodo_n->nombre = stringProcess();
@@ -214,8 +215,24 @@ int agregarClientes(CLIENTES* lista_c, int ID)
 		nodo_n->next = *lista_c;
 		*lista_c = nodo_n; 
 	}
-	return ID;
 }
+int validarIdClientes(int id, CLIENTES lista_c)
+{
+	if(lista_c == NULL){
+		return 0; // Si la lista no tienen elementos NO hace una busqueda para validar que el ID no esté.
+	}
+	else{
+		while(lista_c != NULL){
+			if(lista_c->ID == id){
+				printf("El id |%d| ya exista en la base de datos. Favor de ingresar otro\n", id);
+				return 1;
+			}
+			lista_c = lista_c->next;	
+		}
+		return 0; // Terminó la busqueda y ningún ID concide con el introducido en la base de datos.
+	}
+}
+
 
 void actualizarClientes(CLIENTES lista_c)
 {
