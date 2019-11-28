@@ -54,11 +54,14 @@ int main(){
 						break;
 		
 					case 2:
-						if(lista_c != NULL)
-							editarCliente(lista_c);	
-						else
+						if(lista_c != NULL){
+							editarCliente(lista_c);
+							actualizarClientes(lista_c);
+						}
+						else{
 							printf("La lista esta vacia, porfavor ingrese datos");
 							getch();
+							}
 					break;
 
 					case 3:

@@ -218,13 +218,17 @@ void agregarClientes(CLIENTES* lista_c)
 }
 int validarIdClientes(int id, CLIENTES lista_c)
 {
+	if(id <= 0){
+		printf("El id no puede ser 0. Favor de ingresar otro\n"); // Esto nos ayuda a tener un mejor control.
+		return 1;
+	}
 	if(lista_c == NULL){
 		return 0; // Si la lista no tienen elementos NO hace una busqueda para validar que el ID no esté.
 	}
 	else{
 		while(lista_c != NULL){
 			if(lista_c->ID == id){
-				printf("El id |%d| ya exista en la base de datos. Favor de ingresar otro\n", id);
+				printf("El id %d ya exista en la base de datos. Favor de ingresar otro\n", id);
 				return 1;
 			}
 			lista_c = lista_c->next;	
@@ -232,8 +236,6 @@ int validarIdClientes(int id, CLIENTES lista_c)
 		return 0; // Terminó la busqueda y ningún ID concide con el introducido en la base de datos.
 	}
 }
-
-
 void actualizarClientes(CLIENTES lista_c)
 {
 	FILE*archivo_nuevo;
@@ -270,7 +272,6 @@ void actualizarClientes(CLIENTES lista_c)
 	rename("./FILES/CLIENTES_TEMP.txt","./FILES/CLIENTES.txt");
 	}
 }
-
 int agregarLibros(LIBROS* lista_l, int ID){
 	LIBRO_N* nodo_l = (LIBRO_N*) malloc(sizeof(LIBRO_N));
 	nodo_l->ID = ++ID;
@@ -305,7 +306,6 @@ int agregarLibros(LIBROS* lista_l, int ID){
 	
 	return ID;
 }
-
 void imprimirLibros(LIBROS lista_l){
 	while(lista_l != NULL){
 		printf("ID: %d\nTipo: %d", lista_l->ID,lista_l->tipo);
@@ -315,74 +315,79 @@ void imprimirLibros(LIBROS lista_l){
 		lista_l = lista_l->next;	
 	}
 }
-
 void editarCliente(CLIENTES lista_c){
-	int opcion, flag=1;
-	printf("\t--- CLIENTES ---\n");
+	CLIENTES lista_c_auxiliar = lista_c; // Es necesario crear un auxiliar para recorrer dos veces la lista.
+	
+	printf("\n\t--- CLIENTES ---\n");
+	printf(" %-20s %-50s\n", "ID", "NOMBRE");
 	while(lista_c != NULL){
-			printf("ID: %d\t-\t%s\n", lista_c->ID, lista_c->nombre);
+			printf(" %-20d %-50s\n", lista_c->ID, lista_c->nombre); 
 		lista_c = lista_c->next;
-	}
-		printf("0 \t-\t Salir\tSELECCIONE(ID): "); fflush(stdin);
+	} // Imprime la lista de clientes.
+	printf("\n[0] Regresar");
+	int opcion;
+	int flag = 0;
 	do{
+		printf("\n\n\t\t\t\tSELECCIONE UN CLIENTE: "); fflush(stdin);
 		scanf("%d", &opcion);
-		while(lista_c != NULL){
-			if(lista_c->ID == opcion || opcion == 0){
-				flag=0;
+		if(opcion == 0){
+			break;
+		}
+		while(lista_c_auxiliar != NULL){
+			if(lista_c_auxiliar->ID == opcion){
+				flag = 1;
 				break;
 			}
-			lista_c = lista_c->next;
+			lista_c_auxiliar = lista_c_auxiliar->next;
 		}
-		if(flag){
-			printf("ID no dado de alta. Ingrese un ID valido: "); fflush(stdin);
+		if(flag != 1){
+			printf("\nID del cliente no encontrado. Favor de comprobar.");
+			system("pause");
+			break;
 		}
-	}while(flag);
-	if(opcion == 0){
-		return;
-	}
-	flag = 0;
-	printf("[1] - Nombre: %s\n[2] - Correo: %s\n[3] - Telefono: %llu\n", lista_c->nombre, lista_c->correo, lista_c->telefono);
-	printf("[4] - Calle: %s\n[5] - Municipio: %s\n[6] - Numero de casa: %d\n", lista_c->calle, lista_c->municipio, lista_c->numero);
-	printf("\tSeleccione: ");
-	do
-	{
-		scanf("%d", &opcion);
-		if(opcion < 1 && opcion > 6){
-			printf("Ingrese una opcion valida: "); fflush(stdin);
-			flag = 1;
-		}
-	}while(flag);
-	switch(opcion){
-		case 1: 
-			printf("Nuevo nombre: "); fflush(stdin);
-			free(lista_c->nombre);
-			lista_c->nombre = stringProcess();
-			break;
-		case 2:
-			printf("Nuevo correo: "); fflush(stdin);
-			free(lista_c->correo);
-			lista_c->correo = stringProcess();
-			break;	
-		case 3:
-			printf("Nuevo telefono: "); fflush(stdin);
-			scanf("%llu", &(lista_c->telefono));
-			break;
-		case 4:
-			printf("Nueva calle: "); fflush(stdin);
-			free(lista_c->calle);
-			lista_c->calle = stringProcess();
-			break;
-		case 5: 
-			printf("Nuevo municipio: "); fflush(stdin);
-			free(lista_c->municipio);
-			lista_c->municipio = stringProcess();
-			break;
-		case 6: 
-			printf("Nuevo numero de casa: "); fflush(stdin);
-			scanf("%d", &(lista_c->numero));
-	}
+		else{
+			printf("[1] - Nombre: %s\n[2] - Correo: %s\n[3] - Telefono: %llu\n", lista_c_auxiliar->nombre, lista_c_auxiliar->correo, lista_c_auxiliar->telefono);
+			printf("[4] - Calle: %s\n[5] - Municipio: %s\n[6] - Numero de casa: %d\n", lista_c_auxiliar->calle, lista_c_auxiliar->municipio, lista_c_auxiliar->numero);
+			printf("\tSELECCIONE UNA OPCION: ");
+			do{
+				scanf("%d", &opcion);
+				if(opcion < 1 && opcion > 6){
+					printf("Ingrese una opcion valida: "); fflush(stdin);
+				}
+				}while(opcion < 1 && opcion > 6);
+				switch(opcion){
+					case 1: 
+						printf("Nuevo nombre: "); fflush(stdin);
+						free(lista_c_auxiliar->nombre);
+						lista_c_auxiliar->nombre = stringProcess();
+						break;
+					case 2:
+						printf("Nuevo correo: "); fflush(stdin);
+						free(lista_c_auxiliar->correo);
+						lista_c_auxiliar->correo = stringProcess();
+						break;	
+					case 3:
+						printf("Nuevo telefono: "); fflush(stdin);
+						scanf("%llu", &(lista_c_auxiliar->telefono));
+						break;
+					case 4:
+						printf("Nueva calle: "); fflush(stdin);
+						free(lista_c_auxiliar->calle);
+						lista_c_auxiliar->calle = stringProcess();
+						break;
+					case 5: 
+						printf("Nuevo municipio: "); fflush(stdin);
+						free(lista_c_auxiliar->municipio);
+						lista_c_auxiliar->municipio = stringProcess();
+						break;
+					case 6: 
+						printf("Nuevo numero de casa: "); fflush(stdin);
+						scanf("%d", &(lista_c_auxiliar->numero));
+				}
+				break;
+			}
+	}while(opcion != 0);
 }
-
 void editarLibro(LIBROS lista_l){
 	int opcion, flag = 1;
 	LIBROS aux_l = lista_l;
