@@ -136,10 +136,10 @@ int cargarLibros(LIBROS* lista_l, int ID)
 			
 			LIBRO_N* nodo_n = (LIBRO_N*) malloc(sizeof(LIBRO_N));
 
-			fscanf(archivo,"%d",&tam_titulo);
-			fscanf(archivo,"%d",&tam_autor);
-			fscanf(archivo,"%d",&tam_editorial);
-			fscanf(archivo,"%d",&tam_notas);
+			fscanf(archivo,"%d ",&tam_titulo);
+			fscanf(archivo,"%d ",&tam_autor);
+			fscanf(archivo,"%d ",&tam_editorial);
+			fscanf(archivo,"%d ",&tam_notas);
 			
 			char *titulo = malloc(sizeof(char) * (tam_titulo + 1));	
 			titulo[tam_titulo] = '\0';
@@ -152,21 +152,22 @@ int cargarLibros(LIBROS* lista_l, int ID)
 	
 			char *notas = malloc(sizeof(char) * (tam_notas + 1));	
 			notas[tam_notas] = '\0';
-		
-			fscanf(archivo,"%d", &IDD);
-			fscanf(archivo,"%d", &tipo);
-			fscanf(archivo,"%d", &anio);
-			fscanf(archivo,"%llu", &ISBN);
-			fscanf(archivo,"%f", &precio);
-			fscanf(archivo,"%s", titulo);
-			fscanf(archivo,"%s", autor);
-			fscanf(archivo,"%s", editorial);
-			fscanf(archivo,"%s", notas);
+			
+			fscanf(archivo, "|%d|%d|%d|%llu|%f|%150[^|]|%150[^|]|%150[^|]|%150[^|]|\n",
+			&IDD,
+			&tipo,
+			&anio,
+			&ISBN,
+			&precio,
+			titulo,
+			autor,
+			editorial,
+			notas);
 
 			nodo_n->next = NULL; 
 			nodo_n->ID = IDD;
 			nodo_n->tipo = tipo; 
-			nodo_n->anio_p = anio; 
+			nodo_n->anio_p = anio;
 			nodo_n->ISBN = ISBN; 
 			nodo_n->precio = precio; 
 			nodo_n->titulo = titulo; 	
@@ -272,6 +273,7 @@ void actualizarClientes(CLIENTES lista_c)
 	rename("./FILES/CLIENTES_TEMP.txt","./FILES/CLIENTES.txt");
 	}
 }
+
 int agregarLibros(LIBROS* lista_l, int ID){
 	LIBRO_N* nodo_l = (LIBRO_N*) malloc(sizeof(LIBRO_N));
 	nodo_l->ID = ++ID;
