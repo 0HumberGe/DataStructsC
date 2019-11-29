@@ -107,7 +107,7 @@ int main(){
 
 					case 3:
 						if(lista_l != NULL)
-							bajaLibro(&lista_l);
+							bajaLibro(&lista_l, idLibro(lista_l));
 						else
 							printf("\nLa lista esta vacia, porfavor ingrese datos.");		
 					break;
@@ -125,14 +125,17 @@ int main(){
 				printf("\n[1] COMPRAR LIBRO");
 				printf("\n[2] RENTAR LIBRO");	
 				printf("\n[3] LEER EN SALA");
-				printf("\n[4] REGRESAR LIRBO");						
+				printf("\n[4] REGRESAR LIBRO");						
 				printf("\n\n\t\t\t\tSELECCIONE OPCION: ");	
 				scanf("%d",&op2);
 				
 				switch(op2)
 				{
 					case 1:
-							
+							if(lista_l != NULL)
+								comprarLibros(&lista_l);
+							else
+								printf("Porfavor agrega libros al inventario");
 					break;
 		
 					case 2:
