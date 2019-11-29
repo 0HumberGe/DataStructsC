@@ -95,19 +95,24 @@ int main(){
 				switch(op2)
 				{
 					case 1:
-						ID_l = agregarLibros(&lista_l, ID_l);							
+						ID_l = agregarLibros(&lista_l, ID_l);	
+						actualizarLibros(lista_l);							
 					break;
 		
 					case 2:
-						if(lista_l != NULL)
-							editarLibro(lista_l);
+						if(lista_l != NULL){
+							editarLibro(lista_l);							
+							actualizarLibros(lista_l);	
+							}
 						else
 							printf("\nLa lista esta vacia, porfavor ingrese datos");
 					break;
 
 					case 3:
-						if(lista_l != NULL)
+						if(lista_l != NULL){
 							bajaLibro(&lista_l, idLibro(lista_l));
+							actualizarLibros(lista_l);	
+							}
 						else
 							printf("\nLa lista esta vacia, porfavor ingrese datos.");		
 					break;
