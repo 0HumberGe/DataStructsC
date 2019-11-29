@@ -48,6 +48,8 @@ void buscarLibro(LIBROS);
 void buscarCliente(CLIENTES);
 void editarLibro(LIBROS);
 
+void PrestamoSoloLectura(LIBROS, CLIENTES)
+
 FILE*archivo_viejo;
 FILE*archivo_nuevo;
 FILE*archivo;
@@ -193,7 +195,7 @@ void agregarClientes(CLIENTES* lista_c)
 {	
 	CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
 	do{
-		printf("Ingrese un id(unico): ");
+		printf("Ingrese un id mayor a cero(unico): ");
 		scanf("%d", &nodo_n->ID);
 	}while(validarIdClientes(nodo_n->ID, *lista_c));
 	nodo_n->next = NULL; 
@@ -747,6 +749,138 @@ void buscarLibro(LIBROS lista){
 	}while(op!=4);
 }
 
+void PrestamoSoloLectura(LIBROS lista, CLIENTES listaC){
+	
+	int op;
+	char aux[50];//Para guardar el titulo
+	unsigned long long int AUXISBN;
+	int idL,idC,b;//Para validar id de libros de lectura.
+	
+	
+	LIBROS listaaux=lista;//Creamos una lista auxiliar para guardar todos los libros. (Guarda la lista que traemos como parametro).
+	
+	CLIENTES listaauxC=listaC;
+	
+	do{
+		system("cls");
+		listaC=listaauxC;
+		printf("Ingrese ID de cliente o [0] para regresar: ");
+		scanf("%d",&idC);
+		b=0;
+		while(listaC!=NULL&&b==0&&idC!=0){
+			if(listaC->ID==idC){
+				b=1;
+			}
+			listaC=listaC->next;
+		}
+	}while(b==0&&idC!=0);
+	if(idC!=0)
+	{
+		do{
+			b=0;
+			lista=listaaux;//Igualamos la lista de libros para guardarla en la auxiliar que declaramos arriba.
+			system("cls");
+			printf("Prestamo Solo Lectura\n");
+			printf("1. Buscar por Titulo\n");
+			printf("2. Buscar por ISBN\n");
+			printf("3. Regresar\n");
+			printf("OPCION: ");
+			scanf("%d", &op);
+			fflush( stdin );
+			system("cls");
+			switch(op){
+				case 1:
+					printf("Ingrese el Titulo: ");
+					gets(aux);
+					printf("\n");
+					while(lista!=NULL){
+						if(lista->estado==1&&strcmp(aux,lista->titulo)==0&&lista->tipo==3){
+							printf("ID: %d\nTipo: %d", lista->ID,lista->tipo);
+							printf("\nTitulo: %s\nAutor: %s\nEditorial: %s\n", lista->titulo, lista->autor, lista->editorial);
+							printf("A%co de publicacion: %d\nISBN: %d", 164, lista->anio_p, lista->ISBN);
+							printf("\n\n");
+							b=1;
+						}
+						lista=lista->next;
+					}
+					if(b==1)//Si b es igual a 1 significa que hay libros con ese titulo disponibles
+						do{
+							lista=listaaux;
+							printf("Introduzca ID de libro para lectura o [0] para regresar: ");
+							scanf("%d",&idL);
+							b=0;
+							if(idL!=0){
+								while(lista!=NULL&&b==0){
+									if(lista->estado==1&&strcmp(aux,lista->titulo)==0&&lista->tipo==3&&lista->ID==idL){
+										b=1;
+										lista->estado=0;
+									}
+									lista=lista->next;
+								}
+								if(b==0)
+									printf("El ID no es valido.\n");
+								else
+								{
+									printf("Prestamo de solo lectura exitoso.\n");
+									system("pause");
+								}
+							}
+						}while(b==0&&idL!=0);
+					else{
+						printf("No hay libros disponibles\n");
+						system("pause");
+					}
+				break;
+				case 2:
+					printf("Ingrese el ISBN: ");
+					scanf("%llu", &AUXISBN);
+					printf("\n");
+					while(lista!=NULL){
+						if(lista->estado==1&&AUXISBN==lista->ISBN&&lista->tipo==3){
+							printf("ID: %d\nTipo: %d", lista->ID,lista->tipo);
+							printf("\nTitulo: %s\nAutor: %s\nEditorial: %s\n", lista->titulo, lista->autor, lista->editorial);
+							printf("A%co de publicacion: %d\nISBN: %d", 164, lista->anio_p, lista->ISBN);
+							printf("\n\n");
+							b=1;
+						}
+						lista=lista->next;
+					}
+					if(b==1)//Si b es igual a 1 significa que hay libros con ese titulo disponibles
+						do{
+							lista=listaaux;
+							printf("Introduzca ID de libro para lectura o [0] para regresar: ");
+							scanf("%d",&idL);
+							b=0;
+							if(idL!=0){
+								while(lista!=NULL&&b==0){
+									if(lista->estado==1&&AUXISBN==lista->ISBN&&lista->tipo==3&&lista->ID==idL){
+										b=1;
+										lista->estado=0;
+									}
+									lista=lista->next;
+								}
+								if(b==0)
+									printf("El ID no es valido.\n");
+								else
+								{
+									printf("Prestamo de solo lectura exitoso.\n");
+									system("pause");
+								}
+							}
+						}while(b==0&&idL!=0);
+					else{
+						printf("No hay libros disponibles\n");
+						system("pause");
+					}
+				break;	
+			}
+		}while(op!=3);
+	}
+}
+
+void ComprarLibros(){
+}
+
 void buscarCliente(CLIENTES lista){
 	int aux;
 	int b=0;
@@ -780,6 +914,7 @@ char* stringProcess(){
 	*(string+(lng-1)) = '\0';
 	return string;
 }
+
 
 void llenarBuffer(){
 	int i;
