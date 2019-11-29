@@ -47,6 +47,7 @@ int agregarLibros(LIBROS*, int);
 void imprimirClientes(CLIENTES);
 void imprimirLibros(LIBROS);
 void actualizarClientes(CLIENTES);
+void actualizarLibros(LIBROS);
 void bajaCliente(CLIENTES*);
 void bajaLibro(LIBROS*, int);
 void editarCliente(CLIENTES);
@@ -284,6 +285,47 @@ void actualizarClientes(CLIENTES lista_c)
 	rename("./FILES/CLIENTES_TEMP.txt","./FILES/CLIENTES.txt");
 	}
 }
+
+void actualizarLibros(LIBROS lista_l)
+{
+	FILE*archivo_nuevo;
+	
+	archivo_nuevo= fopen("./FILES/LIBROS_TEMP.txt","w");
+	
+	if(archivo_nuevo==NULL)
+	{
+		printf("\nERROR AL ACTUALIZAR ARCHIVO\n");
+	}
+	
+	else
+	{
+		while(lista_l != NULL){
+			fprintf(archivo_nuevo,"%d %d %d %d ",
+			strlen(lista_l->titulo),
+			strlen(lista_l->autor),
+			strlen(lista_l->editorial),
+			strlen(lista_l->notas));
+			
+			fprintf(archivo_nuevo,"|%d|%d|%d|%llu|%f|%s|%s|%s|%s|\n",
+			lista_l->ID,
+			lista_l->tipo,
+			lista_l->anio_p,
+			lista_l->ISBN,
+			lista_l->precio,
+			lista_l->titulo,
+			lista_l->autor,
+			lista_l->editorial,
+			lista_l->notas);
+			
+			lista_l = lista_l->next;
+		}
+	
+	fclose(archivo_nuevo);
+	remove("./FILES/LIBROS.txt");
+	rename("./FILES/LIBROS_TEMP.txt","./FILES/LIBROS.txt");
+	}
+}
+
 
 int agregarLibros(LIBROS* lista_l, int ID){
 	LIBRO_N* nodo_l = (LIBRO_N*) malloc(sizeof(LIBRO_N));
