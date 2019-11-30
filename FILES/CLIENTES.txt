@@ -1,2 +1,2 @@
-22 27 14 12 |1665567|Osvaldo Delgado Flores|osvaldo.delgadofl@gmail.com|8158129502|Monterrey N.L.|Cda. Cumbres|101|
-17 23 11 10 |161626|Judith Candelaria|judith_juarez@gmail.com|819859285|Juarez N.L.|Bien Lejos|64010|
+12 23 6 10 2 |723|Judith Cande|judith_juarez@gmail.com|81591285|Juarez|Bien lejos|666|Chingon|Puntual|
+22 17 9 12 2 |1665567|Osvaldo Delgado Flores|osvaldo@gmail.com|8115909454|Monterrey|Cda. Cumbres|101|Cuidadoso|Puntual|

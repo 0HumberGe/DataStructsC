@@ -4,18 +4,34 @@
 #define MAX 150
 char BUFFER[MAX]={'\0'};
 
+
+struct nota{
+	char *texto;
+	struct nota *next;
+};
+typedef struct nota NOTA_N;
+typedef NOTA_N *NOTAS;
+
 struct cliente{
 	int numero;
 	char *calle, *municipio;
 	int ID;
 	unsigned long long int telefono;
 	char *nombre, *correo;
-	char *notas;
+	NOTAS LISTA_DE_NOTAS;
+	int cantidad_de_notas;
 	struct cliente* next;
 };
 
 typedef struct cliente CLIENTE_N;
 typedef CLIENTE_N* CLIENTES;
+
+struct shop_car{
+	struct libro* libro;
+	struct shop_car* next;
+};
+typedef struct shop_car SHOP_CAR_N;
+typedef SHOP_CAR_N* SHOP_CAR;
 
 struct libro{
 	int ID, anio_p, tipo,estado;
@@ -28,44 +44,40 @@ struct libro{
 typedef struct libro LIBRO_N;
 typedef LIBRO_N* LIBROS;
 
-struct shop_car{
-	struct libro* libro;
-	struct shop_car* next;
-};
-typedef struct shop_car SHOP_CAR_N;
-typedef SHOP_CAR_N* SHOP_CAR;
-
+void cargarNotas(NOTAS*);
 int cargarLibros(LIBROS*,int);
 char* stringProcess();
 
 void agregarClientes(CLIENTES*);
 int validarIdClientes(int, CLIENTES);
+
 void cargarClientes(CLIENTES*);
 
-int idLibro(LIBROS);
 int agregarLibros(LIBROS*, int);
+void agregarNota(NOTAS*);
+int idLibro(LIBROS);
+
 void imprimirClientes(CLIENTES);
+
 void imprimirLibros(LIBROS);
 void actualizarClientes(CLIENTES);
 void actualizarLibros(LIBROS);
 void bajaCliente(CLIENTES*);
 void bajaLibro(LIBROS*, int);
-void editarCliente(CLIENTES);
-void llenarBuffer();
 void buscarLibro(LIBROS);
-void buscarCliente(CLIENTES);
-void editarLibro(LIBROS);
 void toShopCar(LIBRO_N, SHOP_CAR*);
-
 void PrestamoSoloLectura(LIBROS, CLIENTES);
 void comprarLibros(LIBROS*);
+void editarCliente(CLIENTES);
+void llenarBuffer();
+void buscarCliente(CLIENTES);
+void editarLibro(LIBROS);
 
 FILE*archivo_viejo;
 FILE*archivo_nuevo;
 FILE*archivo;
 
-void cargarClientes(CLIENTES* lista_c)
-{
+void cargarClientes(CLIENTES* lista_c){
 	archivo = fopen("./FILES/CLIENTES.txt","r");
 
 	if (archivo==NULL) 
@@ -76,8 +88,9 @@ void cargarClientes(CLIENTES* lista_c)
     {
 		while(!feof(archivo))
 		{
-			int size_name, size_email, size_city, size_street;
-			fscanf(archivo, "%d %d %d %d ", &size_name, &size_email, &size_city, &size_street);
+			int size_name, size_email, size_city, size_street, cantidad_de_notas;
+			fscanf(archivo, "%d %d %d %d %d ", &size_name, &size_email, &size_city, &size_street, &cantidad_de_notas);
+			
 			char *name = malloc(sizeof(char) * (size_name + 1));	
 			name[size_name] = '\0';
 	
@@ -93,25 +106,31 @@ void cargarClientes(CLIENTES* lista_c)
 			int id, numero_de_casa;
 			unsigned long long int telefono;
 			
-			fscanf(archivo, "|%d|%150[^|]|%150[^|]|%llu|%150[^|]|%150[^|]|%d|\n",
+			fscanf(archivo, "|%d|%150[^|]|%150[^|]|%llu|%150[^|]|%150[^|]|%d|",
 			&id,
 			name,
 			email,
 			&telefono,
 			city,
 			street,
-			&numero_de_casa);
+			&numero_de_casa);	
 			
 			CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
 			nodo_n->next = NULL; 
+			nodo_n->LISTA_DE_NOTAS = NULL;
 			nodo_n->ID = id; 
 			nodo_n->nombre = name; 
 			nodo_n->correo = email; 
 			nodo_n->telefono = telefono;
 			nodo_n->municipio = city; 
 			nodo_n->calle = street; 		
-			nodo_n->numero = numero_de_casa;  
-							
+			nodo_n->numero = numero_de_casa;
+			nodo_n->cantidad_de_notas = cantidad_de_notas;
+			int i;
+			for(i = 0; i<cantidad_de_notas;i++){
+				cargarNotas(&nodo_n->LISTA_DE_NOTAS);
+			}	
+			fscanf(archivo, "\n");  
 			if(*lista_c == NULL)
 				*lista_c = nodo_n;
 			else
@@ -125,9 +144,22 @@ void cargarClientes(CLIENTES* lista_c)
 		fclose(archivo);
 	}
 }
-
-int cargarLibros(LIBROS* lista_l, int ID)
-{
+void cargarNotas(NOTAS* LISTA_DE_NOTAS){
+	NOTAS nota_n = (NOTAS) malloc(sizeof(NOTA_N));
+	nota_n->next = NULL;
+	
+	char *auxiliarNota = malloc(sizeof(char) * (MAX));
+	fscanf(archivo, "%150[^|]|", auxiliarNota);
+	nota_n->texto = auxiliarNota;
+	if(*LISTA_DE_NOTAS == NULL){
+		*LISTA_DE_NOTAS = nota_n;
+	}
+	else{
+		nota_n->next = *LISTA_DE_NOTAS;
+		*LISTA_DE_NOTAS = nota_n; 
+	}
+}
+int cargarLibros(LIBROS* lista_l, int ID){
 	int IDD;
 	
 	archivo = fopen("./FILES/LIBROS.txt","r");
@@ -164,7 +196,8 @@ int cargarLibros(LIBROS* lista_l, int ID)
 	
 			char *notas = malloc(sizeof(char) * (tam_notas + 1));	
 			notas[tam_notas] = '\0';
-			
+		
+
 			fscanf(archivo, "|%d|%d|%d|%llu|%f|%150[^|]|%150[^|]|%150[^|]|%150[^|]|\n",
 			&IDD,
 			&tipo,
@@ -205,6 +238,8 @@ int cargarLibros(LIBROS* lista_l, int ID)
 void agregarClientes(CLIENTES* lista_c)
 {	
 	CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
+	nodo_n->LISTA_DE_NOTAS = NULL;
+	nodo_n->cantidad_de_notas = 0;
 	do{
 		printf("Ingrese un id mayor a cero(unico): ");
 		scanf("%d", &nodo_n->ID);
@@ -222,11 +257,35 @@ void agregarClientes(CLIENTES* lista_c)
 	nodo_n->calle = stringProcess();
 	printf("Ingresa el numero de casa: ");fflush(stdin); 
 	scanf("%d", &(nodo_n->numero));
+	printf("\t--- N O T A S ---\n");
+	int opcion;
+	do{
+		agregarNota(&nodo_n->LISTA_DE_NOTAS);
+		nodo_n->cantidad_de_notas++;
+		printf("Desea ingresar una nueva nota? [0]NO: ");
+		scanf("%d", &opcion);
+	}while(opcion != 0);
+	
 	if(*lista_c == NULL)
 		*lista_c = nodo_n;
 	else{
 		nodo_n->next = *lista_c;
 		*lista_c = nodo_n; 
+	}
+}
+void agregarNota(NOTAS *LISTA_DE_NOTAS)
+{
+	NOTAS nota_n = (NOTAS) malloc(sizeof(NOTA_N));
+	printf("\nIngresa una nota: "); fflush(stdin);
+	nota_n->texto = stringProcess();
+	nota_n->next = NULL;
+	if(*LISTA_DE_NOTAS == NULL){
+		
+		*LISTA_DE_NOTAS = nota_n;
+	}
+	else{
+		nota_n->next = *LISTA_DE_NOTAS;
+		*LISTA_DE_NOTAS = nota_n; 
 	}
 }
 int validarIdClientes(int id, CLIENTES lista_c)
@@ -236,7 +295,7 @@ int validarIdClientes(int id, CLIENTES lista_c)
 		return 1;
 	}
 	if(lista_c == NULL){
-		return 0; // Si la lista no tienen elementos NO hace una busqueda para validar que el ID no esté.
+		return 0; // Si la lista no tienen elementos NO hace una busqueda.
 	}
 	else{
 		while(lista_c != NULL){
@@ -262,14 +321,17 @@ void actualizarClientes(CLIENTES lista_c)
 	
 	else
 	{
+		NOTAS LISTA_DE_NOTAS;
 		while(lista_c != NULL){
-			fprintf(archivo_nuevo,"%d %d %d %d ",
+			
+			fprintf(archivo_nuevo,"%d %d %d %d %d ",
 			strlen(lista_c->nombre),
 			strlen(lista_c->correo),
 			strlen(lista_c->municipio),
-			strlen(lista_c->calle));
+			strlen(lista_c->calle),
+			lista_c->cantidad_de_notas);
 			
-			fprintf(archivo_nuevo,"|%d|%s|%s|%llu|%s|%s|%d|\n",
+			fprintf(archivo_nuevo,"|%d|%s|%s|%llu|%s|%s|%d|",
 			lista_c->ID,
 			lista_c->nombre,
 			lista_c->correo,
@@ -277,26 +339,32 @@ void actualizarClientes(CLIENTES lista_c)
 			lista_c->municipio,
 			lista_c->calle,
 			lista_c->numero);
+			LISTA_DE_NOTAS = NULL;
+			LISTA_DE_NOTAS = lista_c->LISTA_DE_NOTAS;
+			while(LISTA_DE_NOTAS != NULL){
+				fprintf(archivo_nuevo, "%s|", LISTA_DE_NOTAS->texto);
+				LISTA_DE_NOTAS = LISTA_DE_NOTAS->next;	
+			}
+			fprintf(archivo_nuevo, "\n");
 			lista_c = lista_c->next;
+			
 		}
-	
 	fclose(archivo_nuevo);
 	remove("./FILES/CLIENTES.txt");
 	rename("./FILES/CLIENTES_TEMP.txt","./FILES/CLIENTES.txt");
-	}
+	}	
 }
-
 void actualizarLibros(LIBROS lista_l)
 {
 	FILE*archivo_nuevo;
-	
+
 	archivo_nuevo= fopen("./FILES/LIBROS_TEMP.txt","w");
-	
+
 	if(archivo_nuevo==NULL)
 	{
 		printf("\nERROR AL ACTUALIZAR ARCHIVO\n");
 	}
-	
+
 	else
 	{
 		while(lista_l != NULL){
@@ -305,7 +373,7 @@ void actualizarLibros(LIBROS lista_l)
 			strlen(lista_l->autor),
 			strlen(lista_l->editorial),
 			strlen(lista_l->notas));
-			
+
 			fprintf(archivo_nuevo,"|%d|%d|%d|%llu|%f|%s|%s|%s|%s|\n",
 			lista_l->ID,
 			lista_l->tipo,
@@ -316,18 +384,18 @@ void actualizarLibros(LIBROS lista_l)
 			lista_l->autor,
 			lista_l->editorial,
 			lista_l->notas);
-			
+
 			lista_l = lista_l->next;
 		}
-	
+
 	fclose(archivo_nuevo);
 	remove("./FILES/LIBROS.txt");
 	rename("./FILES/LIBROS_TEMP.txt","./FILES/LIBROS.txt");
 	}
 }
-
-
-int agregarLibros(LIBROS* lista_l, int ID){
+int agregarLibros(LIBROS* lista_l, int ID)
+{
+	
 	LIBRO_N* nodo_l = (LIBRO_N*) malloc(sizeof(LIBRO_N));
 	nodo_l->ID = ++ID;
 	nodo_l->estado=1;
@@ -358,8 +426,26 @@ int agregarLibros(LIBROS* lista_l, int ID){
 		nodo_l->next = *lista_l;
 		*lista_l = nodo_l;
 	}
-	
 	return ID;
+}
+int validarIdLibros(int id, LIBROS lista_l){
+		if(id <= 0){
+		printf("El id no puede ser 0. Favor de ingresar otro\n"); // Esto nos ayuda a tener un mejor control.
+		return 1;
+	}
+	if(lista_l == NULL){
+		return 0; // Si la lista no tienen elementos NO hace una busqueda.
+	}
+	else{
+		while(lista_l != NULL){
+			if(lista_l->ID == id){
+				printf("El id %d ya exista en la base de datos. Favor de ingresar otro\n", id);
+				return 1;
+			}
+			lista_l = lista_l->next;	
+		}
+		return 0; // Terminó la busqueda y ningún ID concide con el introducido en la base de datos.
+	}
 }
 void imprimirLibros(LIBROS lista_l){
 	while(lista_l != NULL){
@@ -409,7 +495,7 @@ void editarCliente(CLIENTES lista_c){
 				if(opcion < 1 && opcion > 6){
 					printf("Ingrese una opcion valida: "); fflush(stdin);
 				}
-				}while(opcion < 1 || opcion > 6);
+				}while(opcion < 1 && opcion > 6);
 				switch(opcion){
 					case 1: 
 						printf("Nuevo nombre: "); fflush(stdin);
@@ -471,12 +557,12 @@ void editarLibro(LIBROS lista_l){
 	}
 	flag=0;
 	printf("[1] - Titulo: %s\n[2] - Autor: %s\n[3] - Editorial: %s\n", lista_l->titulo, lista_l->autor, lista_l->editorial);
-	printf("[4] - ISBN: %llu\n[5] - Precio: %.2f\n[6] - Tipo de libro: %d\n", lista_l->ISBN, lista_l->precio, lista_l->tipo);
+	printf("[4] - ISBN: %llu\n[5] - Precio: %d\n[6] - Tipo de libro: %d\n", lista_l->ISBN, lista_l->precio, lista_l->tipo);
 	printf("[7] - A%co de publicacion: %d\n\tSeleccione: ", 164, lista_l->anio_p);
 	do
 	{
 		scanf("%d", &opcion);
-		if(opcion < 1 || opcion >6){
+		if(opcion < 1 && opcion >6){
 			printf("Ingrese una opcion valida: "); fflush(stdin);
 			flag=1;
 		}
@@ -520,6 +606,12 @@ void imprimirClientes(CLIENTES lista_c){
 	while(lista_c != NULL){
 		printf("ID: %d\nNombre: %s\nCorreo: %s\nTelefono: %llu\n", lista_c->ID, lista_c->nombre, lista_c->correo, lista_c->telefono);
 		printf("--- DIRECCION ---\nMunicipio: %s\nCalle: %s\nNumero de casa: %d", lista_c->municipio, lista_c->calle, lista_c->numero);
+		printf("%\n--- NOTAS ---");
+		NOTAS LISTA_DE_NOTAS = lista_c->LISTA_DE_NOTAS; // Se tiene que hacer un auxiliar.
+		while( LISTA_DE_NOTAS != NULL){	
+			printf("\n%s", LISTA_DE_NOTAS->texto);
+			LISTA_DE_NOTAS = LISTA_DE_NOTAS->next;
+		}
 		printf("\n\n");
 		lista_c = lista_c->next;
 	}
@@ -603,14 +695,35 @@ void bajaCliente(CLIENTES* lista_c){
 		}		
 	}
 }
-
-void bajaLibro(LIBROS* lista_l, int ID){
-	int flag=1;
+void bajaLibro(LIBROS* lista_l, int id){
+	LIBROS aux_l = *lista_l;
+	int ID, flag=1;
+	printf("\t--- LIBROS ---\n");
+	while(*lista_l != NULL){
+		printf("ID: %d\t-\t%s\n", (*lista_l)->ID, (*lista_l)->titulo);
+		*lista_l = (*lista_l)->next;
+	}
+		printf("0 \t-\t Salir\t\nSELECCIONE(ID): "); fflush(stdin);
+	do{
+		scanf("%d", &ID);
+		*lista_l = aux_l;
+		while(*lista_l != NULL){
+			if((*lista_l)->ID == ID || ID == 0){
+				flag=0;
+				break;
+			}
+			*lista_l = (*lista_l)->next;
+		}
+		if(flag){
+			printf("ID no dado de alta. Ingrese un ID valido: "); fflush(stdin);
+		}
+	}while(flag);
 	if(ID == 0)
 	{
-		return; //se sale por la funcion idLibro
+		return; //se sale por la funcion idLibro;
 	}
-	LIBROS aux_l = NULL;
+		*lista_l = aux_l;
+		aux_l = NULL;	
 	if((*lista_l)->ID == ID)
 	{
 		if((*lista_l)->next == NULL)
@@ -661,7 +774,6 @@ void bajaLibro(LIBROS* lista_l, int ID){
 		}
 	}	
 }
-
 void buscarLibro(LIBROS lista){
 	int op, b=0;
 	char auxs[20];
@@ -779,19 +891,18 @@ void buscarLibro(LIBROS lista){
 		}
 	}while(op!=4);
 }
-
 void PrestamoSoloLectura(LIBROS lista, CLIENTES listaC){
-	
+
 	int op;
 	char aux[50];//Para guardar el titulo
 	unsigned long long int AUXISBN;
 	int idL,idC,b;//Para validar id de libros de lectura.
-	
-	
+
+
 	LIBROS listaaux=lista;//Creamos una lista auxiliar para guardar todos los libros. (Guarda la lista que traemos como parametro).
-	
+
 	CLIENTES listaauxC=listaC;
-	
+
 	do{
 		system("cls");
 		listaC=listaauxC;
@@ -916,7 +1027,7 @@ void comprarLibros(LIBROS* lista_l){
 	char titulo[50];
 	float subTotal = 0, IVA = 0, total = 0, pago = 0, cambio = 0;
 	unsigned long long int ISBN_aux;
-	
+
 	printf("---\tCOMPRAR LIBROS\t---");
 	do{
 		printf("1. Buscar por titulo\n2. Buscar por ISBN\n\t\tOPCION: ");
@@ -1115,7 +1226,6 @@ void toShopCar(LIBRO_N libro_u, SHOP_CAR* lista_s){
 		aux_s->next = nodo_s;
 	}
 }
-
 void buscarCliente(CLIENTES lista){
 	int aux;
 	int b=0;
@@ -1135,7 +1245,6 @@ void buscarCliente(CLIENTES lista){
 	printf("\n");
 	system("pause");
 }
-
 char* stringProcess(){
 	int lng, i;
 	llenarBuffer();
@@ -1149,8 +1258,6 @@ char* stringProcess(){
 	*(string+(lng-1)) = '\0';
 	return string;
 }
-
-
 void llenarBuffer(){
 	int i;
 	for(i=0; i<MAX; i++)
