@@ -7,9 +7,13 @@ int main(){
 	
 	CLIENTES lista_c = NULL;
 	LIBROS lista_l = NULL;
-		
+	
+	int ID_l = 0;	
 	int op1,op2,op3;
-	int x;	
+	
+	int x;
+	ID_l = cargarLibros(&lista_l,ID_l);
+	
 	do
 	{
 		system("cls");
@@ -91,19 +95,24 @@ int main(){
 				switch(op2)
 				{
 					case 1:
-						agregarLibros(&lista_l);							
+						ID_l = agregarLibros(&lista_l, ID_l);	
+						actualizarLibros(lista_l);						
 					break;
 		
 					case 2:
-						if(lista_l != NULL)
-							editarLibro(lista_l);
+							if(lista_l != NULL){
+								editarLibro(lista_l);							
+								actualizarLibros(lista_l);	
+							}
 						else
 							printf("\nLa lista esta vacia, porfavor ingrese datos");
 					break;
 
 					case 3:
-						if(lista_l != NULL)
-							bajaLibro(&lista_l);
+							if(lista_l != NULL){
+								bajaLibro(&lista_l, idLibro(lista_l));
+								actualizarLibros(lista_l);	
+							}
 						else
 							printf("\nLa lista esta vacia, porfavor ingrese datos.");		
 					break;
@@ -128,7 +137,10 @@ int main(){
 				switch(op2)
 				{
 					case 1:
-							
+							if(lista_l != NULL)
+								comprarLibros(&lista_l);
+							else
+								printf("Porfavor agrega libros al inventario");	
 					break;
 		
 					case 2:
