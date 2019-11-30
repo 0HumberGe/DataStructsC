@@ -2,9 +2,19 @@
 #include<stdlib.h>
 #include<string.h>
 #include<ctype.h>
+#include<time.h>
+
 #define MAX 150
 char BUFFER[MAX]={'\0'};
 
+
+struct librosRentados{
+	int IDlibro;
+	struct tm *fecha_regreso;
+	struct librosRentados* next;
+};
+typedef struct librosRentados LIBROS_RN;
+typedef LIBROS_RN* LIBROS_R;
 
 struct nota{
 	char *texto;
@@ -16,9 +26,12 @@ typedef NOTA_N *NOTAS;
 struct cliente{
 	int numero;
 	char *calle, *municipio;
-	int ID;
+	int ID, CantLibros;
 	unsigned long long int telefono;
 	char *nombre, *correo;
+	LIBROS_R libros_r;
+	float multas;
+	struct librosRentados* libro_sl;
 	NOTAS LISTA_DE_NOTAS;
 	int cantidad_de_notas;
 	struct cliente* next;
@@ -31,6 +44,7 @@ struct shop_car{
 	struct libro* libro;
 	struct shop_car* next;
 };
+
 typedef struct shop_car SHOP_CAR_N;
 typedef SHOP_CAR_N* SHOP_CAR;
 
@@ -54,12 +68,14 @@ int validarIdClientes(int, CLIENTES);
 
 void cargarClientes(CLIENTES*);
 
+float multas(int);
+void Regresar(CLIENTES, LIBROS);
 int agregarLibros(LIBROS*, int);
 void agregarNota(NOTAS*);
 int idLibro(LIBROS);
-
+void Fecha(struct tm*);
 void imprimirClientes(CLIENTES);
-
+void toLibros_R(int, LIBROS_R*);
 void imprimirLibros(LIBROS);
 void actualizarClientes(CLIENTES);
 void actualizarLibros(LIBROS);
@@ -71,8 +87,9 @@ void PrestamoSoloLectura(LIBROS, CLIENTES);
 void comprarLibros(LIBROS*);
 void editarCliente(CLIENTES);
 void llenarBuffer();
-void buscarCliente(CLIENTES);
+void buscarCliente(CLIENTES, LIBROS);
 void editarLibro(LIBROS);
+void buscarLibrosrenta(LIBROS, CLIENTES);
 
 FILE*archivo_viejo;
 FILE*archivo_nuevo;
@@ -145,6 +162,7 @@ void cargarClientes(CLIENTES* lista_c){
 		fclose(archivo);
 	}
 }
+
 void cargarNotas(NOTAS* LISTA_DE_NOTAS){
 	NOTAS nota_n = (NOTAS) malloc(sizeof(NOTA_N));
 	nota_n->next = NULL;
@@ -241,6 +259,9 @@ void agregarClientes(CLIENTES* lista_c)
 	CLIENTE_N* nodo_n = (CLIENTE_N*) malloc(sizeof(CLIENTE_N));
 	nodo_n->LISTA_DE_NOTAS = NULL;
 	nodo_n->cantidad_de_notas = 0;
+	nodo_n->CantLibros = 0;
+	nodo_n->multas = 0;
+	nodo_n->libros_r = NULL;
 	do{
 		printf("Ingrese un id mayor a cero(unico): ");
 		scanf("%d", &nodo_n->ID);
@@ -880,17 +901,17 @@ void buscarLibro(LIBROS lista){
 	}while(op!=4);
 }
 void PrestamoSoloLectura(LIBROS lista, CLIENTES listaC){
-
+	
 	int op;
 	char aux[50];//Para guardar el titulo
 	unsigned long long int AUXISBN;
 	int idL,idC,b;//Para validar id de libros de lectura.
-
-
+	
+	
 	LIBROS listaaux=lista;//Creamos una lista auxiliar para guardar todos los libros. (Guarda la lista que traemos como parametro).
-
+	
 	CLIENTES listaauxC=listaC;
-
+	
 	do{
 		system("cls");
 		listaC=listaauxC;
@@ -1187,6 +1208,311 @@ void comprarLibros(LIBROS* lista_l){
 	} 
 }
 
+void buscarLibrosrenta(LIBROS lista, CLIENTES lista_c){
+	int op, b=0, opcion, ID_c;
+	CLIENTES aux_c = lista_c;
+	int auxs;
+	int auxi;
+	do
+	{
+		printf("Ingrese el ID del cliente: ");
+		b=0;
+		fflush(stdin);
+		scanf("&d", &ID_c);
+		lista_c = aux_c;
+		while(lista_c != NULL){
+			if(lista_c->ID == ID_c){
+				b=1;
+				break;
+			}
+			lista_c = lista_c->next;
+		}
+		if(!b)
+			printf("Cliente con ID: %d, no encontrado\n", ID_c);
+	}while(!b);
+	
+	do{
+		LIBROS lista_l=lista; //auxiliar, no le cambié el nombre para no borrar lo que ya tenía.
+		system("cls");
+		printf("Buscar por: \n");
+		printf("1.- ID \n");
+		printf("2.- ISBN \n");
+		printf("3.- Regresar. \n");
+		printf("Opcion: ");
+		scanf("%d",&op);
+		system("cls");
+		switch(op){
+			case 1:
+				b=0;
+				fflush(stdin);
+				printf("Ingrese ID del libro: ");
+				scanf("%d",&auxs);
+				system("cls");
+				while(lista_l != NULL){
+					if(auxs==lista_l->ID && lista_l->estado == 1){
+						b=1;
+						break;
+					}
+					lista_l = lista_l->next;
+				}
+				
+				if(b==0)
+				{
+					printf("No hay ningun libro disponible con ID %d para renta.\n", auxs);
+					system("pause");
+					break;
+				}
+				if(b){
+					b=0;
+					printf("ID: %d\nTipo: %d", lista_l->ID,lista_l->tipo);
+					printf("\nTitulo: %s\nAutor: %s\nEditorial: %s\n", lista_l->titulo, lista_l->autor, lista_l->editorial);
+					printf("A%co de publicacion: %d\nISBN: %llu\nPrecio: %.2f", 164, lista_l->anio_p, lista_l->ISBN, lista_l->precio);
+					printf("\n\n");
+					printf("Desea rentar este libro: 1.SI 2.NO\n\tOPCION: ");
+					do{
+						fflush(stdin);
+						scanf("%d", &opcion);
+						if(opcion != 2 && opcion != 1)	
+							printf("Ingrese un dato correcto: ");
+					}while(opcion != 2 && opcion != 1);
+					if(opcion == 2)
+						break;
+					if(lista_c->CantLibros < 3 && opcion == 1){
+						Fecha(lista_c->libros_r->fecha_regreso); //guardar la fecha de entrega
+						lista_l->estado = 0;
+						lista_c->CantLibros++;
+						toLibros_R(lista_l->ID, &lista_c->libros_r);
+						printf("Libro con ID %d, rentado al cliente con ID: %d\n", lista_l->ID, lista_c->ID);
+					}else if(lista_c->CantLibros >= 3){
+							printf("Limite de libros en renta alcanzado: %d", lista_c->CantLibros);
+							return;
+						}
+				}
+				system("pause");
+				break;
+			case 2:
+				b=0;
+				fflush(stdin);
+				printf("Ingrese ISBN del libro: ");
+				scanf("%d",&auxi);
+				system("cls");
+				while(lista_l != NULL){
+					if(auxi==lista_l->ISBN && lista_l->estado == 1){
+						b=1;
+						break;
+					}
+					lista_l= lista_l->next;
+				}
+				
+				if(b==0)
+				{
+					printf("No hay ningun libro disponible con ISBN %llu para renta.\n", auxi);
+					system("pause");
+					break;
+				}
+				if(b){
+					b=0;
+					printf("ID: %d\nTipo: %d", lista_l->ID,lista_l->tipo);
+					printf("\nTitulo: %s\nAutor: %s\nEditorial: %s\n", lista_l->titulo, lista_l->autor, lista_l->editorial);
+					printf("A%co de publicacion: %d\nISBN: %llu\nPrecio: %.2f", 164, lista_l->anio_p, lista_l->ISBN, lista_l->precio);
+					printf("\n\n");
+					printf("Desea rentar este libro: 1.SI 2.NO\n\tOPCION: ");
+					do{
+						fflush(stdin);
+						scanf("%d", &opcion);
+						if(opcion != 2 && opcion != 1)	
+							printf("Ingrese un dato correcto: ");
+					}while(opcion != 2 && opcion != 1);
+					if(opcion == 2)
+						break;
+					if(lista_c->CantLibros < 3 && opcion == 1){
+						Fecha(lista_c->libros_r->fecha_regreso); //guardar la fecha de entrega
+						lista_l->estado = 0;
+						lista_c->CantLibros++;
+						toLibros_R(lista_l->ID, &(lista_c->libros_r));
+						printf("Libro con ID %d, rentado al cliente con ID: %d\n", lista_l->ID, lista_c->ID);
+					}else if(lista_c->CantLibros >= 3){
+							printf("Limite de libros en renta alcanzado: %d", lista_c->CantLibros);
+							return;
+						}
+				}
+				system("pause");
+				break;
+		}
+	}while(op!=3);
+}
+
+void toLibros_R(int ID, LIBROS_R* lista_r){
+	LIBROS_RN* nodo_n = (LIBROS_RN*) malloc(sizeof(LIBROS_RN));
+	nodo_n->IDlibro = ID;
+	nodo_n->next = NULL;
+	if(*lista_r == NULL)
+		*lista_r = nodo_n;
+	else{
+		LIBROS_R aux_n = *lista_r;
+		while(aux_n->next = NULL){
+			aux_n = aux_n->next;
+		}
+		aux_n->next = nodo_n;
+	}
+}
+
+void Fecha(struct tm* fecha_regreso){
+	//la variable que tiene la fecha almacenada el el buffer
+	int a,b=31,c=30,d=29;
+	time_t rawtime;
+	struct tm *info;
+	char buffer[80];//esta es la variable que deben de guardar en el archivo 
+	time( &rawtime );
+	info = localtime( &rawtime );
+	strftime(buffer,80,"%x - %I:%M%p", info);
+	printf("\n\t La fecha de renta es (mm/dd/aa):");
+	printf("\n\t |%s|\n", buffer );
+	printf("\n\t Cuantos dias quiere rentar el libro: ");
+	scanf("%d",&a);
+	printf("\n\t El libro tendra que entregarse: ");
+   if(a==1)
+   {
+   		info->tm_mday=info->tm_mday+a;
+   		strftime(buffer,80,"%x - %I:%M%p", info);
+   		printf("|%s|\n", buffer );
+   }
+   else 
+   {
+   		if(a>1 && a<=32)
+   		{
+   			info->tm_mon=info->tm_mon+1;
+   			info->tm_mday=a-1;
+   			strftime(buffer,80,"%x - %I:%M%p", info);
+   			printf("\n\t|%s|\n", buffer );
+		}
+		if(a>32 && a<=63)
+		{
+			info->tm_mon=0;
+   			info->tm_mday=a-(b+1);
+   			info->tm_year=20;
+   			strftime(buffer,80,"%x - %I:%M%p", info);
+   			printf("\n\t|%s|\n", buffer );
+		}
+   }
+   fecha_regreso = info;
+   system("pause");
+}
+
+
+void Regresar(CLIENTES listal ,LIBROS lista)
+{
+	double segsdif;
+	int b=0;
+	int auxs, ID_c, dias;
+	CLIENTES lista_c=NULL;
+	buscarCliente(lista_c, lista);
+	LIBROS lista_l=lista; //auxiliar, no le cambié el nombre para no borrar lo que ya tenía.
+	system("cls");
+	do
+	{
+		printf("Ingrese el ID del cliente: ");
+		b=0;
+		fflush(stdin);
+		scanf("&d", &ID_c);
+		lista_c = listal;
+		while(lista_c != NULL){
+			if(lista_c->ID == ID_c){
+				b=1;
+				break;
+			}
+			lista_c = lista_c->next;
+		}
+		if(!b)
+			printf("Cliente con ID: %d, no encontrado\n", ID_c);
+	}while(!b);
+	
+		fflush(stdin);
+		printf("Ingrese ID del libro a regresar: ");
+		scanf("%d",&auxs);
+		system("cls");
+		
+		time_t rawtime;//info se compara con la fecha guardada con la funcion de time.h pero la funcion se meten dos estructuras de time_t para compararlo por lo que 
+					  //tienes que castear cada dato a su respectivo dato de la estructura para despues compararla
+		struct tm *info;
+		char buffer[80];
+		time( &rawtime );
+		info = localtime( &rawtime );
+		strftime(buffer,80,"%x - %I:%M%p", info);
+		
+		while(lista_l != NULL){
+			if(auxs==lista_l->ID && lista_l->estado == 0 ){
+				b=1;
+			}
+			lista_l = lista_l->next;
+		}
+		if(b){
+			printf("ID: %d\nTipo: %d", lista_l->ID,lista_l->tipo);
+			printf("\nTitulo: %s\nAutor: %s\nEditorial: %s\n", lista_l->titulo, lista_l->autor, lista_l->editorial);
+			printf("A%co de publicacion: %d\nISBN: %llu\nPrecio: %.2f", 164, lista_l->anio_p, lista_l->ISBN, lista_l->precio);
+			printf("\n\n");
+	//		difftime(info, lista_c->libros_r->fecha_regreso);//AQUI SE SACA LA DIFERENCIA DE  TIEMPO
+	//		dias = 					//SE PASA A DIAS
+	//		lista_c->multas = multas(dias); //Y DESPUES A LA FUNCION MULTAS
+			LIBROS_R aux_r = lista_c->libros_r;
+			if(aux_r->IDlibro = auxs)
+			{
+				if(aux_r->next == NULL)
+				{
+					lista_c->libros_r = NULL;
+					free(aux_r);
+				}else
+				{
+					lista_c->libros_r = aux_r->next;
+				}
+			}else
+			{
+				while(aux_r->next != NULL){
+					aux_r = aux_r->next;
+				}
+				if(aux_r->IDlibro == auxs)
+				{
+					LIBROS_R previo_r = NULL;
+					aux_r = lista_c->libros_r;
+					while(aux_r->next != NULL){
+						previo_r = aux_r;
+						aux_r = aux_r->next;
+					}
+					previo_r->next = NULL;
+					free(aux_r);
+				}else
+				{
+					aux_r = lista_c->libros_r;
+					LIBROS_R previo_r = NULL;
+					while(aux_r->IDlibro != auxs && aux_r->next != NULL)
+					{
+						previo_r = aux_r;
+						aux_r = aux_r->next;
+					}
+					if(aux_r->IDlibro == auxs)
+					{
+						previo_r->next = aux_r->next;
+						free(aux_r);
+					}
+				}				
+			}
+			lista_c->CantLibros = lista_c->CantLibros - 1;		
+		}
+		if(!b)
+			printf("Ese libro no está registrado\n");
+}
+
+float multas(int dias){
+	int multa=0, i;
+	if(dias >= 1){
+		multa=15;
+		for(i=1; i < dias; i++){
+			multa = multa*2;
+		}
+	}
+	return multa;
+}
+
 int idLibro(LIBROS lista_l){
 	LIBROS aux_l = lista_l;
 	int ID, flag =1;
@@ -1228,25 +1554,56 @@ void toShopCar(LIBRO_N libro_u, SHOP_CAR* lista_s){
 		aux_s->next = nodo_s;
 	}
 }
-void buscarCliente(CLIENTES lista){
+
+void buscarCliente(CLIENTES lista, LIBROS lista_l){
 	int aux;
 	int b=0;
-	CLIENTES lista_c=lista;
+	LIBROS aux_l = NULL;
+	CLIENTES lista_c = lista;
 	printf("Introduzca ID del cliente: ");
 	scanf("%d", &aux);
 	system("cls");
-	while(lista_c!=NULL&&b==0){
+	while(lista_c != NULL && b==0){
 		if(aux==lista_c->ID){
-			printf("ID: %d \nNombre: %s\n\n",lista_c->ID,lista_c->nombre);
-			b=1;
+		b=1;
+		printf("ID: %d\nNombre: %s\nCorreo: %s\nTelefono: %llu\n", lista_c->ID, lista_c->nombre, lista_c->correo, lista_c->telefono);
+		printf("--- DIRECCION ---\nMunicipio: %s\nCalle: %s\nNumero de casa: %d", lista_c->municipio, lista_c->calle, lista_c->numero);
+		printf("%\n--- NOTAS ---");
+		NOTAS LISTA_DE_NOTAS = lista_c->LISTA_DE_NOTAS; // Se tiene que hacer un auxiliar.
+		while( LISTA_DE_NOTAS != NULL){	
+			printf("\n%s", LISTA_DE_NOTAS->texto);
+			LISTA_DE_NOTAS = LISTA_DE_NOTAS->next;
+		}
+		if(lista_c->CantLibros > 0){
+			printf("\n--- LIBROS EN RENTA ---");
+			LIBROS_R aux_r = lista_c->libros_r;
+			aux_l = lista_l;
+			while(aux_r != NULL){
+				while(aux_l != NULL){
+					if(aux_l->ID == aux_r->IDlibro){
+						printf("Titulo: %s, Autor: %s", aux_l->titulo, aux_l->autor);
+						break;
+					}
+					aux_l = aux_l->next;
+				}
+				aux_r = aux_r->next;
+			}
+				b=1;
+				break;
+		}
+		else{
+			printf("\nEl cliente no tiene libros rentados\n");
+			break;
 		}
 		lista_c=lista_c->next;
+		}
 	}
 	if(b==0)
-		printf("No se encontro informacion de cliente %d.\n", aux);
+		printf("\nNo se encontro informacion de cliente %d.\n", aux);
 	printf("\n");
 	system("pause");
 }
+
 char* stringProcess(){
 	int lng, i;
 	llenarBuffer();
@@ -1260,6 +1617,7 @@ char* stringProcess(){
 	*(string+(lng-1)) = '\0';
 	return string;
 }
+
 void llenarBuffer(){
 	int i;
 	for(i=0; i<MAX; i++)
@@ -1267,3 +1625,5 @@ void llenarBuffer(){
 		BUFFER[i] = '\0';
 	}
 }
+
+

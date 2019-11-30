@@ -146,15 +146,24 @@ int main(){
 					break;
 		
 					case 2:
-		
+						if(lista_l != NULL && lista_c != NULL)
+							buscarLibrosrenta(lista_l, lista_c);
+						else
+							printf("Porfavor agrege datos en las listas");
 					break;
 
 					case 3:
-		
+							if(lista_l != NULL && lista_c != NULL)
+							PrestamoSoloLectura(lista_l, lista_c);
+						else
+							printf("Porfavor agrege datos en las listas");
 					break;
-
+				
 					case 4:
-		
+						if(lista_l != NULL && lista_c != NULL)
+							Regresar(lista_c, lista_l);
+						else
+							printf("Porfavor agrege datos en las listas");
 					break;
 
 					default:
@@ -177,7 +186,7 @@ int main(){
 				{
 					case 1:
 							if(lista_c != NULL)
-								buscarCliente(lista_c);
+								buscarCliente(lista_c, lista_l);
 							else
 								printf("\nLa lista esta vacia, porfavor ingrese datos");	
 					break;
