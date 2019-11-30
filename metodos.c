@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<ctype.h>
 #define MAX 150
 char BUFFER[MAX]={'\0'};
 
@@ -449,7 +450,8 @@ int validarIdLibros(int id, LIBROS lista_l){
 }
 void imprimirLibros(LIBROS lista_l){
 	while(lista_l != NULL){
-		printf("ID: %d\nTipo: %d", lista_l->ID,lista_l->tipo);
+		printf("ID: %d\nTipo: %d ", lista_l->ID, lista_l->tipo);
+			switch(lista_l->tipo){case 1: printf("(Renta)"); break; case 2: printf("(Venta)"); break; case 3: printf("(Solo lecutra)"); break; }
 		printf("\nTitulo: %s\nAutor: %s\nEditorial: %s\n", lista_l->titulo, lista_l->autor, lista_l->editorial);
 		printf("A%co de publicacion: %d\nISBN: %llu\nPrecio: %.2f", 164, lista_l->anio_p, lista_l->ISBN, lista_l->precio);
 		printf("\n\n");		
@@ -652,11 +654,13 @@ void bajaCliente(CLIENTES* lista_c){
 			aux_c = *lista_c;
 			*lista_c = NULL;
 			free(aux_c);
+			actualizarClientes(*lista_c);
 		}else
 		{
 			aux_c = *lista_c;
 			*lista_c = aux_c->next;	
 			free(aux_c);
+			actualizarClientes(*lista_c);
 		}	
 	}else
 	{
@@ -676,6 +680,7 @@ void bajaCliente(CLIENTES* lista_c){
 			}
 			free(aux_c);
 			previo_c->next = NULL;	
+			actualizarClientes(*lista_c);
 		}else
 		{
 			aux_c = *lista_c;
@@ -689,41 +694,20 @@ void bajaCliente(CLIENTES* lista_c){
 			{
 				previo_c->next = aux_c->next;
 				free(aux_c);
+				actualizarClientes(*lista_c);
 			}else
 				printf("\nEl cliente con ID : %d no esta dado de alta", ID);
 				getch();
 		}		
 	}
 }
-void bajaLibro(LIBROS* lista_l, int id){
-	LIBROS aux_l = *lista_l;
-	int ID, flag=1;
-	printf("\t--- LIBROS ---\n");
-	while(*lista_l != NULL){
-		printf("ID: %d\t-\t%s\n", (*lista_l)->ID, (*lista_l)->titulo);
-		*lista_l = (*lista_l)->next;
-	}
-		printf("0 \t-\t Salir\t\nSELECCIONE(ID): "); fflush(stdin);
-	do{
-		scanf("%d", &ID);
-		*lista_l = aux_l;
-		while(*lista_l != NULL){
-			if((*lista_l)->ID == ID || ID == 0){
-				flag=0;
-				break;
-			}
-			*lista_l = (*lista_l)->next;
-		}
-		if(flag){
-			printf("ID no dado de alta. Ingrese un ID valido: "); fflush(stdin);
-		}
-	}while(flag);
+void bajaLibro(LIBROS* lista_l, int ID){
+	int flag=1;
 	if(ID == 0)
 	{
 		return; //se sale por la funcion idLibro;
 	}
-		*lista_l = aux_l;
-		aux_l = NULL;	
+	LIBROS aux_l = NULL;	
 	if((*lista_l)->ID == ID)
 	{
 		if((*lista_l)->next == NULL)
@@ -731,11 +715,13 @@ void bajaLibro(LIBROS* lista_l, int id){
 			aux_l = *lista_l;
 			*lista_l = NULL;
 			free(aux_l);
+			actualizarLibros(*lista_l);
 		}else
 		{
 			aux_l = *lista_l;
 			*lista_l = aux_l->next;
 			free(aux_l);
+			actualizarLibros(*lista_l);
 		}
 	}else
 	{
@@ -755,11 +741,12 @@ void bajaLibro(LIBROS* lista_l, int id){
 			}
 			free(aux_l);
 			previo_l->next = NULL;
+			actualizarLibros(*lista_l);
 		}else
 		{
 			aux_l = *lista_l;
 			LIBROS previo_l = NULL;
-			while(aux_l->ID && aux_l->next != NULL)
+			while(aux_l->ID != ID && aux_l->next != NULL)
 			{
 				previo_l = aux_l;
 				aux_l = aux_l->next;
@@ -768,6 +755,7 @@ void bajaLibro(LIBROS* lista_l, int id){
 			{
 				previo_l->next = aux_l->next;
 				free(aux_l);
+				actualizarLibros(*lista_l);
 			}else
 				printf("\nEl libro con ID: %d, no esta dado de alta", ID);
 				getch();
@@ -1024,11 +1012,11 @@ void comprarLibros(LIBROS* lista_l){
 	SHOP_CAR lista_s = NULL, aux_s = NULL, previo_s = NULL;
 	LIBROS aux_l = NULL;
 	int opcion, flag, dato_centi;
-	char titulo[50];
+	char *titulo = NULL;
 	float subTotal = 0, IVA = 0, total = 0, pago = 0, cambio = 0;
 	unsigned long long int ISBN_aux;
 
-	printf("---\tCOMPRAR LIBROS\t---");
+	printf("---\tCOMPRAR LIBROS\t---\n");
 	do{
 		printf("1. Buscar por titulo\n2. Buscar por ISBN\n\t\tOPCION: ");
 		do{
@@ -1043,7 +1031,7 @@ void comprarLibros(LIBROS* lista_l){
 				aux_l = *lista_l;
 				flag = 0;
 				printf("Ingrese el titulo del libro: ");fflush(stdin);
-				fgets(titulo, 50, stdin);
+				titulo = stringProcess();
 				while(aux_l != NULL){
 					if(strcmp(titulo, aux_l->titulo) == 0 && aux_l->tipo == 2){
 						flag = 1;
@@ -1057,7 +1045,7 @@ void comprarLibros(LIBROS* lista_l){
 				}
 				printf("Libro coincidente: \n");
 				printf("Titulo: %s  -  ISBN: %llu   -   Precio: %.2f\n", aux_l->titulo, aux_l->ISBN, aux_l->precio);
-				printf("Desea añadir el libro al carrito: 1. SI\t2. NO");
+				printf("Desea a%cadir el libro al carrito: 1. SI\t2. NO\n\tOPCION: ", 164);
 				do{
 					fflush(stdin);
 					scanf("%d", &dato_centi);
@@ -1086,7 +1074,7 @@ void comprarLibros(LIBROS* lista_l){
 				}
 				printf("Libro coincidente: \n");
 				printf("Titulo: %s  -  ISBN: %llu   -   Precio: %.2f\n", aux_l->titulo, aux_l->ISBN, aux_l->precio);
-				printf("Desea añadir el libro al carrito: 1. SI\t2. NO");
+				printf("Desea a%cadir el libro al carrito: 1. SI\t2. NO\n\t", 164);
 				do{
 					fflush(stdin);
 					scanf("%d", &dato_centi);
@@ -1098,17 +1086,18 @@ void comprarLibros(LIBROS* lista_l){
 				break;
 		}
 		dato_centi = 0;
-		printf("Desea comprar otro libro: 1. SI\t2. NO");
+		printf("Desea comprar otro libro: 1. SI\t2. NO\n\tOPCION: ");
 		do{
 			fflush(stdin);
-			scanf("%d", dato_centi);
+			scanf("%d", &dato_centi);
 			if(dato_centi != 1 && dato_centi != 2)
 				printf("Ingrese un dato valido: ");
 		}while(dato_centi != 1 && dato_centi != 2);
-	}while(dato_centi =! 2);
+	}while(dato_centi == 1);
 	if(lista_s != NULL){
 		dato_centi = 0;
 		aux_s = lista_s;
+		system("cls");
 		printf("Libros en el carrito: \n\n");
 		while(aux_s != NULL){
 			printf("Titulo: %s  -  ISBN: %llu   -   Precio: %.2f\n", aux_s->libro->titulo, aux_s->libro->ISBN, aux_s->libro->precio);
@@ -1117,15 +1106,15 @@ void comprarLibros(LIBROS* lista_l){
 		}
 		IVA = subTotal * 0.16;
 		total = subTotal + IVA;
-		printf("\n\t\tSubTotal: %.2f\n\t\tIVA: %.2f\nt\t\tTotal: %.2f\n", subTotal, IVA, total);
-		printf("Desea comprar los libros: 1.SI\t2.NO");
+		printf("\n\t\tSubTotal: %.2f\n\t\tIVA: %.2f\n\t\tTotal: %.2f\n", subTotal, IVA, total);
+		printf("Desea comprar los libros: 1.SI\t2.NO\n\tOPCION: ");
 		do{
 			fflush(stdin);
 			scanf("%d", &dato_centi);
 			if(dato_centi != 1 && dato_centi != 2)
 				printf("Ingrese un dato valido: ");
 		}while(dato_centi != 1 && dato_centi != 2);
-		if(dato_centi != 2)
+		if(dato_centi == 2)
 			return;
 		printf("Cantidad con la que pago: ");
 		do{
@@ -1150,14 +1139,22 @@ void comprarLibros(LIBROS* lista_l){
 		printf("   LIBRO                      ISBN          PRECIO\n\n");
 		aux_s = lista_s;
 		while(aux_s != NULL){
-			printf(" %25s   %13llu  %.2f\n\n", aux_s->libro->titulo, aux_s->libro->ISBN, aux_s->libro->precio);
+			if((strlen(aux_s->libro->titulo) -1) >= 25)
+				printf(" %25s ", aux_s->libro->titulo);
+			else{
+				printf(" %s ", aux_s->libro->titulo); 
+				int i =strlen(aux_s->libro->titulo) -1;
+				for(; i < 25; i++) 
+					printf(" ");
+			}
+			printf("  %13llu  %.2f\n\n", aux_s->libro->ISBN, aux_s->libro->precio);
 			aux_s = aux_s->next;
 		}
-		printf("                                  SubTotal: %.2f      \n", subTotal);
-		printf("                                       IVA: %.2f      \n", IVA);
-		printf("                                     Total: %.2f      \n\n", total);
-		printf("                                  Efectivo: %.2f      \n", pago);
-		printf("                                    Cambio: %.2f      \n\n", cambio);
+		printf("                                  SubTotal: %4.2f      \n", subTotal);
+		printf("                                       IVA: %4.2f      \n", IVA);
+		printf("                                    Total: %5.2f      \n\n", total);
+		printf("                                  Efectivo: %4.2f      \n", pago);
+		printf("                                    Cambio: %4.2f      \n\n", cambio);
 		printf("               BIBLIOTECA DE CHUCHI               \n");
 		printf("               CIUDAD UNIVERSITARIA               \n");
 		printf("             SAN NICOLAS DE LOS GARZA             \n\n");
@@ -1171,15 +1168,20 @@ void comprarLibros(LIBROS* lista_l){
 		aux_s = lista_s;
 		flag = 1;
 		do{
-			while(aux_s->next != NULL){
-				previo_s = aux_s;
-				aux_s = aux_s->next;
-			}
-			previo_s->next = NULL;
-			free(aux_s);
-			aux_s = lista_s;
 			if(aux_s->next == NULL)
+			{
 				flag = 0;
+			}
+			else{				
+				previo_s = NULL;
+				while(aux_s->next != NULL){
+					previo_s = aux_s;
+					aux_s = aux_s->next;
+				}
+				free(aux_s);
+				previo_s->next = NULL;
+				aux_s = lista_s;
+			}
 		}while(flag);
 		free(aux_s);
 	} 
@@ -1253,7 +1255,7 @@ char* stringProcess(){
 	char* string = (char*)malloc(lng-1 * sizeof(char));fflush(stdin);
 	for(i=0; i<lng-1; i++)
 	{
-		*(string+i) = BUFFER[i];	
+		*(string+i) = toupper(BUFFER[i]);	
 	}
 	*(string+(lng-1)) = '\0';
 	return string;

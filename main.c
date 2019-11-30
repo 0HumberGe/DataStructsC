@@ -138,7 +138,9 @@ int main(){
 				{
 					case 1:
 							if(lista_l != NULL)
+							{
 								comprarLibros(&lista_l);
+							}
 							else
 								printf("Porfavor agrega libros al inventario");	
 					break;
